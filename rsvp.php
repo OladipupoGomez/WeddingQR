@@ -27,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
   } elseif ($name === '' || strlen($name) > 120 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $message = 'Please enter your name and a valid email address.';
+  } elseif (!is_valid_phone_number($phone)) {
+    $message = 'Please enter a valid phone number with 11 to 15 digits, or leave it blank.';
   } elseif (!in_array($label, get_account_labels(), true)) {
     $message = 'Please select your guest category.';
   } else {
@@ -128,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="form-field">
               <label for="phone">Phone number <span>(optional)</span></label>
-              <input id="phone" name="phone" type="tel" autocomplete="tel" value="<?= htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+              <input id="phone" name="phone" type="tel" maxlength="25" autocomplete="tel" value="<?= htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
             </div>
             <div class="form-field">
               <label for="label">Guest category</label>

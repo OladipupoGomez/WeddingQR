@@ -14,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = 'Your session expired. Refresh the page and try again.';
   } elseif ($name === '' || strlen($name) > 120 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $message = 'Enter a name and valid email address.';
+  } elseif (!is_valid_phone_number($phone)) {
+    $message = 'Enter a valid phone number with 11 to 15 digits, or leave it blank.';
   } elseif (!in_array($label, get_account_labels(), true)) {
     $message = 'Please select a valid guest category.';
   } else {
@@ -105,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
   <div class="mb-3">
     <label for="telefone" class="form-label">Phone</label>
-    <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="555 555 5555" value="<?= htmlspecialchars($_POST['telefone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="tel" class="form-control" id="telefone" name="telefone" maxlength="25" placeholder="555 555 5555" value="<?= htmlspecialchars($_POST['telefone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
   </div>
   <button type="submit" class="btn btn-primary">Register guest and send invitation</button>
 </form>

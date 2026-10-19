@@ -581,6 +581,21 @@ function find_guest_duplicate($name, $email, $phone, $stored_guests, $exclude_id
     return false;
 }
 
+function is_valid_phone_number($phone)
+{
+    $phone = trim((string)$phone);
+    if ($phone === '') {
+        return true;
+    }
+
+    if (!preg_match('/^\+?[0-9](?:[0-9(). -]*[0-9])?$/D', $phone)) {
+        return false;
+    }
+
+    $digits = preg_replace('/\D+/', '', $phone);
+    return strlen($digits) >= 11 && strlen($digits) <= 15;
+}
+
 function filter_guests_that_checked_in($bool, $stored_guests, $checkin_guests)
 {
     if (!$stored_guests)
