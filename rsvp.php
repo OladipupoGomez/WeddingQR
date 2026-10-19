@@ -167,5 +167,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     import { injectSpeedInsights } from '/assets/speed-insights.mjs';
     injectSpeedInsights();
   </script>
+  <script type="module">
+    import { inject } from '/assets/analytics.mjs';
+    inject();
+  </script>
 </body>
 </html>

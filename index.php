@@ -155,5 +155,9 @@ require_once __DIR__ . '/bootstrap.php';
     import { injectSpeedInsights } from '/assets/speed-insights.mjs';
     injectSpeedInsights();
   </script>
+  <script type="module">
+    import { inject } from '/assets/analytics.mjs';
+    inject();
+  </script>
 </body>
 </html>
