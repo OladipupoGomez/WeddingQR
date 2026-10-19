@@ -99,5 +99,9 @@ if (isset($_SESSION['invite_pending'])) {
     import { injectSpeedInsights } from '/assets/speed-insights.mjs';
     injectSpeedInsights();
   </script>
+  <script type="module">
+    import { inject } from '/assets/analytics.mjs';
+    inject();
+  </script>
 </body>
 </html>
