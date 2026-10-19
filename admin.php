@@ -41,7 +41,47 @@ if (isset($_GET['enviado'])) {
   exit('Invitation sent tracking is temporarily disabled.');
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['really_remove'])) {
+  if (!csrf_token_is_valid($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Your session expired. Refresh the guest list and try again.');
+  }
+
+  $remove_id = $_POST['remove'] ?? '';
+  $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
+  $guest = is_string($remove_id) ? get_guest_by_id($remove_id, $guests) : null;
+
+  if (!$guest) {
+    $_SESSION['admin_removal_notice'] = [
+      'success' => false,
+      'message' => 'No guest was found. The guest list may already have been updated.',
+    ];
+  } elseif (!DEMO_MODE && send_guest_uninvitation($guest) === false) {
+    $_SESSION['admin_removal_notice'] = [
+      'success' => false,
+      'message' => 'The guest was kept because the uninvitation email could not be sent. ' . (supabase_last_error() ?: 'Email delivery failed.'),
+    ];
+  } elseif (delete_data_record(DATA_DIR . '/guests.json', $remove_id)) {
+    $_SESSION['admin_removal_notice'] = [
+      'success' => true,
+      'message' => DEMO_MODE
+        ? 'The guest was removed from the demo. No email was sent.'
+        : 'The uninvitation email was sent, and the guest record and QR access were removed.',
+    ];
+  } else {
+    $_SESSION['admin_removal_notice'] = [
+      'success' => false,
+      'message' => 'The email was sent, but the guest record could not be removed. ' . (supabase_last_error() ?: 'Storage request failed.'),
+    ];
+  }
+
+  header('Location: /admin');
+  exit;
+}
+
 $checkin_notice = '';
+$removal_notice = $_SESSION['admin_removal_notice'] ?? null;
+unset($_SESSION['admin_removal_notice']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
   if (!csrf_token_is_valid($_POST['csrf_token'] ?? null)) {
     http_response_code(403);
@@ -104,6 +144,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
   <div class="container pt-4 pb-5">
     <?php if ($checkin_notice !== '') : ?>
       <div class="alert alert-info" role="status"><?= htmlspecialchars($checkin_notice, ENT_QUOTES, 'UTF-8'); ?></div>
+    <?php endif; ?>
+    <?php if (is_array($removal_notice) && isset($removal_notice['message'])) : ?>
+      <div class="alert <?= !empty($removal_notice['success']) ? 'alert-success' : 'alert-danger'; ?> admin-removal-notice" role="status" aria-live="polite">
+        <span class="bi-<?= !empty($removal_notice['success']) ? 'check-circle' : 'exclamation-circle'; ?> me-2" aria-hidden="true"></span>
+        <strong><?= !empty($removal_notice['success']) ? 'Guest removed' : 'Guest not removed'; ?></strong>
+        <span><?= htmlspecialchars($removal_notice['message'], ENT_QUOTES, 'UTF-8'); ?></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss notification"></button>
+      </div>
     <?php endif; ?>
     <?php
     $option = 'home';

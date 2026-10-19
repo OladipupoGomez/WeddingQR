@@ -45,27 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $existing_guest = $email_matches[0];
     }
 
-    $normalize_name = function ($value) {
-      $value = preg_replace('/\s+/u', ' ', trim((string)$value));
-      return function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
-    };
-    $normalized_name = $normalize_name($name);
-    $normalized_phone = preg_replace('/\D+/', '', $phone);
-
     if ($message === '') {
-      foreach ($guests as $saved_guest) {
-        if ($existing_guest && ($saved_guest['id'] ?? null) === ($existing_guest['id'] ?? null)) {
-          continue;
-        }
-
-        $saved_name = $normalize_name($saved_guest['nome'] ?? $saved_guest['name'] ?? '');
-        $saved_email = strtolower(trim((string)($saved_guest['email'] ?? '')));
-        $saved_phone = preg_replace('/\D+/', '', (string)($saved_guest['telefone'] ?? $saved_guest['phone'] ?? ''));
-
-        if ($saved_email === $email || ($normalized_name !== '' && $saved_name === $normalized_name) || ($normalized_phone !== '' && $saved_phone !== '' && $saved_phone === $normalized_phone)) {
-          $message = 'An RSVP already exists with this name, email address, or phone number. Please check your details or contact the wedding hosts.';
-          break;
-        }
+      if (find_guest_duplicate($name, $email, $phone, $guests, $existing_guest['id'] ?? null)) {
+        $message = 'An RSVP already exists with this name, email address, or phone number. Please check your details or contact the wedding hosts.';
       }
     }
 

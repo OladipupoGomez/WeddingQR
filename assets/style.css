@@ -71,6 +71,145 @@ header .home-link .brand {
   white-space: nowrap;
 }
 
+.admin-removal-notice {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin-bottom: 1.25rem;
+  padding: .9rem 1rem;
+  border-radius: .6rem;
+}
+
+.admin-removal-notice strong {
+  margin-right: .25rem;
+  white-space: nowrap;
+}
+
+.admin-removal-notice .btn-close {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.admin-remove-panel {
+  max-width: 640px;
+  margin: 2.5rem auto;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  border: 1px solid #e6e3dc;
+  border-radius: .85rem;
+  background: #fff;
+  box-shadow: 0 16px 48px rgb(29 37 32 / 7%);
+}
+
+.admin-remove-icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  place-items: center;
+  border-radius: 50%;
+  color: #8b3430;
+  background: #f8e9e6;
+  font-size: 1.35rem;
+}
+
+.admin-remove-icon.is-error {
+  color: #725d32;
+  background: #f5f0e3;
+}
+
+.admin-eyebrow {
+  margin: 0 0 .35rem;
+  color: #94793e;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.admin-remove-panel h2 {
+  margin-bottom: .5rem;
+  color: #242923;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.7rem, 4vw, 2.15rem);
+  font-weight: 400;
+}
+
+.admin-remove-intro,
+.admin-remove-panel>p:not(.admin-eyebrow) {
+  color: #656960;
+  line-height: 1.6;
+}
+
+.admin-remove-guest {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  margin: 1.5rem 0 1rem;
+  padding: 1rem;
+  border: 1px solid #ece9e2;
+  border-radius: .6rem;
+  background: #faf9f6;
+}
+
+.admin-remove-guest>.bi-person-circle {
+  color: #927d4d;
+  font-size: 1.6rem;
+}
+
+.admin-remove-guest div,
+.admin-remove-guest div span {
+  display: block;
+}
+
+.admin-remove-guest div span {
+  margin-top: .2rem;
+  color: #71746c;
+  font-size: .9rem;
+}
+
+.admin-remove-email-note {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  color: #656960;
+  font-size: .9rem;
+  line-height: 1.55;
+}
+
+.admin-remove-email-note>.bi-envelope-paper {
+  margin-top: .15rem;
+  color: #927d4d;
+}
+
+.admin-remove-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .65rem;
+  margin-top: 1.75rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #ece9e2;
+}
+
+@media (max-width: 480px) {
+  .admin-removal-notice {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .admin-removal-notice .btn-close {
+    position: absolute;
+    right: .8rem;
+  }
+
+  .admin-remove-actions {
+    flex-direction: column-reverse;
+  }
+
+  .admin-remove-actions .btn {
+    width: 100%;
+  }
+}
+
 .table td.actions a {
   margin-right: .5rem;
   color: var(--bs-primary);

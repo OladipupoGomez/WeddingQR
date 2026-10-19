@@ -197,7 +197,7 @@ if ($filter_category !== '') {
           </td>
           <td class="actions">
             <div class="wrapper">
-              <a href="?remove=<?= rawurlencode($id); ?>&amp;csrf_token=<?= rawurlencode(csrf_token()); ?>" class="bi-trash3" title="Remove"></a>
+              <a href="?remove=<?= rawurlencode($id); ?>" class="bi-trash3" title="Remove"></a>
               <a href="/get_qr.php?id=<?= $id; ?>" download class="bi-qr-code" title="Download QR code"></a>
             </div>
           </td>

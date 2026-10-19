@@ -552,6 +552,35 @@ function guest_exists($id, $stored_guests)
     return false;
 }
 
+function find_guest_duplicate($name, $email, $phone, $stored_guests, $exclude_id = null)
+{
+    $normalize_name = function ($value) {
+        $value = preg_replace('/\s+/u', ' ', trim((string)$value));
+        return function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+    };
+    $normalized_name = $normalize_name($name);
+    $normalized_email = strtolower(trim((string)$email));
+    $normalized_phone = preg_replace('/\D+/', '', (string)$phone);
+
+    foreach ($stored_guests ?: [] as $guest) {
+        if ($exclude_id !== null && (string)($guest['id'] ?? '') === (string)$exclude_id) {
+            continue;
+        }
+
+        $saved_name = $normalize_name($guest['nome'] ?? $guest['name'] ?? '');
+        $saved_email = strtolower(trim((string)($guest['email'] ?? '')));
+        $saved_phone = preg_replace('/\D+/', '', (string)($guest['telefone'] ?? $guest['phone'] ?? ''));
+
+        if (($normalized_email !== '' && $saved_email === $normalized_email)
+            || ($normalized_name !== '' && $saved_name === $normalized_name)
+            || ($normalized_phone !== '' && $saved_phone !== '' && $saved_phone === $normalized_phone)) {
+            return $guest;
+        }
+    }
+
+    return false;
+}
+
 function filter_guests_that_checked_in($bool, $stored_guests, $checkin_guests)
 {
     if (!$stored_guests)

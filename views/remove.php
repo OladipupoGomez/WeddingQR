@@ -1,50 +1,52 @@
 <?php
-$status = false;
-$message = '';
+$remove_id = $_GET['remove'] ?? '';
 
-if (isset($_GET['remove'])) {
-
-  if (!csrf_token_is_valid($_GET['csrf_token'] ?? null)) {
-    http_response_code(403);
-    exit('Invalid security token. Refresh the page and try again.');
-  }
-
-  $id = $_GET['remove'];
-
-  $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-
-  if (isset($_GET['really_remove'])) {
-    $guest = get_guest_by_id($id, $guests);
-    if (!$guest) {
-      $message = 'No guest was found for removal.';
-    } elseif (!DEMO_MODE && send_guest_uninvitation($guest) === false) {
-      $message = 'The guest was not removed because the uninvitation email could not be sent: ' . (supabase_last_error() ?: 'Email delivery failed.');
-    } elseif (delete_data_record(DATA_DIR . '/guests.json', $id)) {
-      $status = true;
-      $message = DEMO_MODE
-        ? 'Guest removed from the demo. No email was sent.'
-        : 'Guest removed and an uninvitation email was sent.';
-    } else {
-      $message = 'The uninvitation email was sent, but the guest record could not be removed: ' . (supabase_last_error() ?: 'Storage request failed.');
-    }
-  } else {
-    // Confirm removal
-    if (!$guest = get_guest_by_id($id, $guests)) {
-      $status = false;
-      $message = 'No guest was found with this ID.';
-    } else {
-      echo '<script>if(confirm("Are you sure you want to delete guest ' . htmlspecialchars($guest['nome'], ENT_QUOTES, 'UTF-8') . '?"))'
-        . 'window.location.href = "?remove=' . rawurlencode($id) . '&really_remove&csrf_token=' . rawurlencode($_GET['csrf_token']) . '"; '
-        . 'else window.location.href = "?"; </script>';
-    }
-  }
-} else {
-  header('Location: /');
+if (!is_string($remove_id) || $remove_id === '') {
+  http_response_code(400);
+  echo '<div class="alert alert-danger" role="alert">A valid guest was not specified.</div>';
+  return;
 }
 
-
-if ($message != '') {
-  $status_label = ($status) ? 'SUCCESS' : 'ERROR';
-  echo '<script>alert("' . $status_label . '\n' . $message . '");'
-    . 'window.location.href = "?";</script>';
+$guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
+$guest = get_guest_by_id($remove_id, $guests);
+if (!$guest) {
+  http_response_code(404);
+  ?>
+  <section class="admin-remove-panel" aria-labelledby="remove-guest-title">
+    <div class="admin-remove-icon is-error"><span class="bi-person-x" aria-hidden="true"></span></div>
+    <p class="admin-eyebrow">Guest management</p>
+    <h2 id="remove-guest-title">Guest not found</h2>
+    <p>This guest may already have been removed from the list.</p>
+    <a href="/admin" class="btn btn-outline-secondary">Back to guests</a>
+  </section>
+  <?php
+  return;
 }
+
+$guest_name = $guest['nome'] ?? 'this guest';
+$guest_email = $guest['email'] ?? '';
+?>
+<section class="admin-remove-panel" aria-labelledby="remove-guest-title">
+  <div class="admin-remove-icon"><span class="bi-person-dash" aria-hidden="true"></span></div>
+  <p class="admin-eyebrow">Guest management</p>
+  <h2 id="remove-guest-title">Remove this guest?</h2>
+  <p class="admin-remove-intro">This will remove the guest from your list and disable their QR code.</p>
+
+  <div class="admin-remove-guest">
+    <span class="bi-person-circle" aria-hidden="true"></span>
+    <div>
+      <strong><?= htmlspecialchars($guest_name, ENT_QUOTES, 'UTF-8'); ?></strong>
+      <?php if ($guest_email !== '') : ?>
+        <span><?= htmlspecialchars($guest_email, ENT_QUOTES, 'UTF-8'); ?></span>
+      <?php endif; ?>
+    </div>
+  </div>
+
+  <form method="post" action="/admin" class="admin-remove-actions">
+    <input type="hidden" name="remove" value="<?= htmlspecialchars($remove_id, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="really_remove" value="1">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+    <a href="/admin" class="btn btn-outline-secondary">Cancel</a>
+    <button type="submit" class="btn btn-danger"><span class="bi-trash3 me-2" aria-hidden="true"></span>Send notice &amp; remove</button>
+  </form>
+</section>

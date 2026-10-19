@@ -9,19 +9,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = strtolower(trim($_POST['email'] ?? ''));
   $phone = trim($_POST['telefone'] ?? '');
   $label = $_POST['label'] ?? '';
-  $id = bin2hex(random_bytes(16));
 
   if (!csrf_token_is_valid($_POST['csrf_token'] ?? null)) {
     $message = 'Your session expired. Refresh the page and try again.';
-  } elseif ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+  } elseif ($name === '' || strlen($name) > 120 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $message = 'Enter a name and valid email address.';
   } elseif (!in_array($label, get_account_labels(), true)) {
     $message = 'Please select a valid guest category.';
   } else {
     $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-    if (guest_exists($id, $guests)) {
-      $message = 'A guest with this name already exists. Please use a different name or edit the existing record.';
+    if (find_guest_duplicate($name, $email, $phone, $guests)) {
+      $message = 'A user already exists with these details.';
     } else {
+      $id = bin2hex(random_bytes(16));
       $guest = [
         'id' => $id,
         'nome' => $name,
@@ -74,10 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <?php if ($message !== '') : ?>
-  <script>
-    alert(<?= json_encode($message, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>);
-    <?php if ($success) : ?>window.location.href = '/admin';<?php endif; ?>
-  </script>
+  <div class="alert <?= $success ? 'alert-success' : 'alert-danger'; ?> admin-removal-notice" role="status" aria-live="polite">
+    <span class="bi-<?= $success ? 'check-circle' : 'exclamation-circle'; ?> me-2" aria-hidden="true"></span>
+    <span><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss notification"></button>
+  </div>
 <?php endif; ?>
 
 <a href="/admin" class="btn btn-outline-primary mb-3 small">Back to dashboard</a>
@@ -87,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h1>Register guest</h1>
   <div class="mb-3">
     <label for="nome" class="form-label">Name</label>
-    <input type="text" class="form-control" id="nome" name="nome" placeholder="Person or group" value="<?= htmlspecialchars($_POST['nome'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+    <input type="text" class="form-control" id="nome" name="nome" maxlength="120" placeholder="Person or group" value="<?= htmlspecialchars($_POST['nome'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
   </div>
   <div class="mb-3">
     <label for="email" class="form-label">Email</label>
