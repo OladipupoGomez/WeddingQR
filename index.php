@@ -151,5 +151,9 @@ require_once __DIR__ . '/bootstrap.php';
       siteNav.classList.remove('is-open');
     }));
   </script>
+  <script type="module">
+    import { injectSpeedInsights } from '/assets/speed-insights.mjs';
+    injectSpeedInsights();
+  </script>
 </body>
 </html>

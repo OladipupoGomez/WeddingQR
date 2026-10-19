@@ -210,6 +210,10 @@ if (isset($_GET['confirmed'])) {
       <?php endif; ?>
     </p>
   </div>
+  <script type="module">
+    import { injectSpeedInsights } from '/assets/speed-insights.mjs';
+    injectSpeedInsights();
+  </script>
 </body>
 
 </html>

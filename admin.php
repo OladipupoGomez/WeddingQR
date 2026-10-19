@@ -141,6 +141,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
   <footer class="py-3">
     <div class="container"><div>ADE &amp; OLA@2026</div></div>
   </footer>
+  <script type="module">
+    import { injectSpeedInsights } from '/assets/speed-insights.mjs';
+    injectSpeedInsights();
+  </script>
 </body>
 
 </html>
