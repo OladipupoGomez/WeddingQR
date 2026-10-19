@@ -1,21 +1,16 @@
-<a class="btn btn-outline-primary" href="/">Voltar ao início</a>
+<a class="btn btn-outline-primary" href="/admin">Back to dashboard</a>
 
 <?php
-$report = '';
-$status = null;
 $message = '';
-$redirect = '/';
 
 // data received
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-  echo "<pre class='report'>";
+  if (!csrf_token_is_valid($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Invalid security token. Refresh the page and try again.');
+  }
 
-  $target_dir = DATA_DIR . '/uploads/';
-
-  $target_file = $target_dir . 'new_import.csv';
-
-  $file_name = $_FILES['file']['name'];
   $file_tmp_name = $_FILES['file']['tmp_name'];
   $file_extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
 
@@ -27,17 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $keys = array_shift($csv_data);
 
   $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-  echo "Antes da importação: " . count($guests) . " registro(s)\n";
-
-  echo "\nIniciando importação...\n";
-
-  print_r($keys);
   foreach ($csv_data as $row) {
-    print_r($row);
-    for ($i = count($row); $i < count($keys); $i++) {
-      echo 'yeah';
-      $row[$key[$i]] = null;
-    }
+    $row = array_slice(array_pad($row, count($keys), null), 0, count($keys));
 
     $new_guest = array_combine($keys, $row);
     if (!$new_guest['numero'])
@@ -61,16 +47,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
   }
 
-  echo "\nApós a importação: " . count($guests) . " registro(s)\n";
-
-  $guests = json_encode($guests);
-  if (file_put_contents(DATA_DIR . '/guests.json', $guests)) {
-    echo "\nImportação bem sucedida!";
+  if (save_data_to_dir(DATA_DIR . '/guests.json', $guests)) {
+    $message = 'Import completed successfully.';
+  } else {
+    $message = 'Import failed: ' . (supabase_last_error() ?: 'storage request failed.');
   }
 
-  // echo "\n\n-- Avisos: $report";
-
-  echo "</pre>";
 }
 
 ?>
+<?php if ($message !== '') : ?>
+  <div class="alert alert-info" role="status"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></div>
+<?php endif; ?>

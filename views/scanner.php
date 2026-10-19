@@ -1,4 +1,4 @@
-<a href="?" class="btn btn-outline-primary mb-3 small">Voltar ao Início</a>
+<a href="?" class="btn btn-outline-primary mb-3 small">Back to home</a>
 <div id="reader">
   <div id="spinner"><span class="bi-arrow-repeat"></span></div>
 </div>
@@ -7,8 +7,6 @@
 
 <script>
   function onScanSuccess(decodedText, decodedResult) {
-    // handle the scanned code as you like, for example:
-    console.log(`Code matched = ${decodedText}`, decodedResult);
     window.location.href = "?checkin=" + decodedText;
   }
 

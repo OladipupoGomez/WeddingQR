@@ -1,117 +1,131 @@
-<a href="?register" class="btn btn-outline-primary">Registar convidados</a>
-<a href="?scanner" class="btn btn-outline-primary ms-2">Scanner Código QR</a>
-
 <?php
 $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
 $checkin_guests = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
+?>
 
-if (isset($_GET['enviado'])) {
-  $id = $_GET['enviado'];
-  $data = get_guest_by_id($id, $guests);
-  $data['enviado'] = ($data['enviado'] === true) ? false : true;
-  replace_guest_by_id($id, $data, $guests);
+<?php if (is_admin()) : ?>
+  <a href="?register" class="btn btn-outline-primary">Add guests</a>
+<?php endif; ?>
+<a href="?scanner" class="btn btn-outline-primary ms-2">QR code scanner</a>
 
-  $guests = json_encode($guests);
-  file_put_contents(DATA_DIR . '/guests.json', $guests);
-  echo '<script>window.close();</script>';
-  exit;
-}
+<?php /* if (is_admin()) : ?>
+<section class="mt-4 mb-5" aria-labelledby="account-directory-title">
+  <h2 id="account-directory-title">Accounts</h2>
+  <?php if ($accounts) : ?>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Email</th>
+            <th scope="col">Name</th>
+            <th scope="col">Guest category</th>
+            <th scope="col">Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($accounts as $account) : ?>
+            <tr>
+              <td><?= htmlspecialchars($account['email'], ENT_QUOTES, 'UTF-8'); ?></td>
+              <td><?= htmlspecialchars($account['display_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+              <td><?= htmlspecialchars($account['label'], ENT_QUOTES, 'UTF-8'); ?></td>
+              <td><?= htmlspecialchars($account['created_at'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php else : ?>
+    <p>No accounts have been created yet.</p>
+  <?php endif; ?>
+</section>
+<?php endif; */ ?>
 
+<?php
 $s = '';
 if (isset($_GET['s']) && $_GET['s'] != '') {
-  $s = $_GET['s'];
+  $s = is_string($_GET['s']) ? $_GET['s'] : '';
 
-  $guests = filter_guests($s, $guests);
+  $guests = filter_guests($s, $guests) ?: [];
 
   $search_args = "s=$s";
 }
-$order = '';
-if (isset($_GET['order'])) {
-  $order = $_GET['order'] ?? 'AZ';
+$order = $_GET['order'] ?? '';
+if (!is_string($order)) $order = '';
+if (in_array($order, ['AZ', 'ZA'], true)) {
   $guests = order_guests_by_nome($guests, $order);
-  $order_args = "order=$order";
 }
-$filter_checkin = '';
-if (isset($_GET['filter_checkin'])) {
-  $filter_checkin = $_GET['filter_checkin'] ?? 3;
-
-  switch ($filter_checkin) {
-    case 1:
-      $guests = filter_guests_that_checked_in(true, $guests, $checkin_guests);
-      break;
-    case 2:
-      if (count($checkin_guests))
-        $guests = filter_guests_that_checked_in(false, $guests, $checkin_guests);
-      break;
-  }
+$filter_checkin = $_GET['filter_checkin'] ?? '';
+if (!is_string($filter_checkin)) $filter_checkin = '';
+$filter_category = $_GET['filter_category'] ?? '';
+if (!is_string($filter_category) || !in_array($filter_category, get_account_labels(), true)) $filter_category = '';
+if ($filter_checkin === '1') {
+  $guests = filter_guests_that_checked_in(true, $guests, $checkin_guests);
+} elseif ($filter_checkin === '2') {
+  $guests = filter_guests_that_checked_in(false, $guests, $checkin_guests);
 }
-$filter_enviado = '';
-if (isset($_GET['filter_enviado'])) {
-  $filter_enviado = $_GET['filter_enviado'] ?? 3;
-  switch ($filter_enviado) {
-    case 1:
-      $guests = filter_guests_key_value('enviado', true, 'bool', $guests);
-      break;
-    case 2:
-      $guests = filter_guests_key_value('enviado', false, 'bool', $guests);
-      break;
-  }
+if ($filter_category !== '') {
+  $guests = array_values(array_filter($guests ?: [], function ($guest) use ($filter_category) {
+    return ($guest['label'] ?? '') === $filter_category;
+  }));
 }
-
-$query_arr = $_GET;
-$query = '?' . http_build_query($query_arr);
-
-$change_order_query = get_filter_query('order', $query_arr, ['AZ', 'ZA', '']);
-$change_checkin_query = get_filter_query('filter_checkin', $query_arr, [1, 2, 3]);
-$change_enviado_query = get_filter_query('filter_enviado', $query_arr, [1, 2, 3]);
-
 ?>
 
 <form class="home-heading d-flex flex-column flex-sm-row align-items-center justify-content-between mb-3">
   <div class="title">
-    <small><a href="/">Recarregar</a></small>
-    <h2>Todos os convidados</h2>
+    <small><a href="/admin">Refresh</a></small>
+    <h2>All guests</h2>
   </div>
   <div class="search d-flex align-items-center">
-    <a class="bi-arrow-clockwise" href="/" title="Recarregar"></a>
-    <?php foreach ($query_arr as $key => $value) : ?> <input type="hidden" name="<?= $key; ?>" value="<?= $value; ?>"> <?php endforeach; ?>
-    <input type="text" class="form-control my-2 my-sm-0" name="s" value="<?= $s; ?>" placeholder="Pesquisar">
+    <a class="bi-arrow-clockwise" href="/admin" title="Refresh"></a>
+    <input type="hidden" name="order" value="<?= htmlspecialchars($order, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="filter_checkin" value="<?= htmlspecialchars($filter_checkin, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="filter_category" value="<?= htmlspecialchars($filter_category, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="text" class="form-control my-2 my-sm-0" name="s" value="<?= htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Search">
     <button type="submit" class="bi-search"></button>
   </div>
 </form>
-<table class="table table-hover">
+<form class="guest-filters row g-2 align-items-end mb-3" method="get" action="/admin">
+  <?php if ($s !== '') : ?><input type="hidden" name="s" value="<?= htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); ?>"><?php endif; ?>
+  <div class="col-12 col-sm-4 col-md-3">
+    <label class="form-label mb-1" for="guest-order">Name order</label>
+    <select class="form-select" id="guest-order" name="order">
+      <option value="" <?= $order === '' ? 'selected' : ''; ?>>Default</option>
+      <option value="AZ" <?= $order === 'AZ' ? 'selected' : ''; ?>>A to Z</option>
+      <option value="ZA" <?= $order === 'ZA' ? 'selected' : ''; ?>>Z to A</option>
+    </select>
+  </div>
+  <div class="col-12 col-sm-4 col-md-3">
+    <label class="form-label mb-1" for="guest-checkin-filter">Check-in</label>
+    <select class="form-select" id="guest-checkin-filter" name="filter_checkin">
+      <option value="" <?= $filter_checkin === '' ? 'selected' : ''; ?>>All guests</option>
+      <option value="1" <?= $filter_checkin === '1' ? 'selected' : ''; ?>>Checked in</option>
+      <option value="2" <?= $filter_checkin === '2' ? 'selected' : ''; ?>>Not checked in</option>
+    </select>
+  </div>
+  <div class="col-12 col-sm-4 col-md-3">
+    <label class="form-label mb-1" for="guest-category-filter">Guest category</label>
+    <select class="form-select" id="guest-category-filter" name="filter_category">
+      <option value="" <?= $filter_category === '' ? 'selected' : ''; ?>>All categories</option>
+      <?php foreach (get_account_labels() as $category) : ?>
+        <option value="<?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8'); ?>" <?= $filter_category === $category ? 'selected' : ''; ?>><?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8'); ?></option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+  <div class="col-12 col-md-auto"><button class="btn btn-outline-primary" type="submit">Apply filters</button></div>
+</form>
+<div class="table-responsive">
+<table class="table table-hover admin-guests-table">
 
   <thead>
-    <th class="checkin">
-      <div class="d-none d-sm-block"><a href="<?= $change_checkin_query; ?>">Check-in
-          <?php if ($filter_checkin == 1) : ?>
-            <span class="bi-check-square-fill"></span>
-          <?php endif;
-          if ($filter_checkin == 2) : ?>
-            <span class="bi-check-square"></span>
-          <?php endif; ?>
-        </a></div>
-    </th>
-    <th class="nome"><a href="<?= $change_order_query; ?>">
-        Nome
-        <?php if ($order == 'AZ') : ?>
-          <span class="bi-sort-alpha-down"></span>
-        <?php endif;
-        if ($order == 'ZA') : ?>
-          <span class="bi-sort-alpha-up"></span>
-        <?php endif; ?>
-      </a></th>
-    <th class="contacto">Contacto</th>
-    <th class="numero-checkin">Nº Check-in</th>
+    <tr>
+    <th class="name">Name</th>
+    <th class="guest-category">Guest category</th>
+    <th class="email">Email</th>
+    <th class="phone">Phone</th>
+    <th class="checkin">Check-in</th>
+    <th class="numero-checkin">Check-in status</th>
     <th class="actions"></th>
-    <th class="enviado"><a href="<?= $change_enviado_query; ?>">Enviado
-        <?php if ($filter_enviado == 1) : ?>
-          <span class="bi-calendar2-check-fill"></span>
-        <?php endif;
-        if ($filter_enviado == 2) : ?>
-          <span class="bi-calendar-check"></span>
-        <?php endif; ?>
-      </a></th>
+    </tr>
   </thead>
   <tbody>
     <?php
@@ -121,11 +135,11 @@ $change_enviado_query = get_filter_query('filter_enviado', $query_arr, [1, 2, 3]
       foreach ($guests as $guest) :
 
         $id = $guest['id'];
-        $nome = $guest['nome'];
+        $name = $guest['nome'] ?? $guest['name'] ?? '';
         $numero = $guest['numero'];
-        $email = $guest['email'];
-        $telefone = $guest['telefone'];
-        $enviado = $guest['enviado'] ?? false;
+        $email = $guest['email'] ?? '';
+        $telefone = $guest['telefone'] ?? '';
+        $label = $guest['label'] ?? '';
 
         $numero_checkin = '-';
         $updates = [];
@@ -135,47 +149,46 @@ $change_enviado_query = get_filter_query('filter_enviado', $query_arr, [1, 2, 3]
           $updates = $checkin['updates'];
         }
 
-        $contacto = null;
-        if ($email) {
-          $contacto .= $email;
-        }
-        if ($email && $telefone) {
-          $contacto .= ' <span>/</span> ';
-        }
-        if ($telefone) {
-          $contacto .= $telefone;
-        }
       ?>
         <tr>
-          <td class="checkin"><a href="?checkin=<?= $id; ?>" class="<?= $checkin ? 'bi-check-square-fill' : 'bi-check-square'; ?>"></a></td>
-          <td class="nome"><?= $nome; ?>
-            <div class="numero"><?= $numero; ?>
-              <?= ' pessoa' . (($numero > 1) ? 's' : ''); ?></div>
+          <td class="name"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="guest-category"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="email"><?= htmlspecialchars($email ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="phone"><?= htmlspecialchars($telefone ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="checkin">
+            <?php if (!$checkin) : ?>
+              <form method="post" action="/admin" class="checkin-toggle-form">
+                <input type="hidden" name="check_in_guest" value="1">
+                <input type="hidden" name="guest_id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+                <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Check in <?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>">Check in</button>
+              </form>
+            <?php else : ?>
+              <a href="?checkin=<?= rawurlencode($id); ?>" class="small" title="Adjust checked-in guest count">Adjust</a>
+            <?php endif; ?>
           </td>
-          <td class="contacto"><?= $contacto ?? '-'; ?></td>
           <!-- <td class="numero d-none d-sm-table-cell"><?= $numero; ?></td> -->
           <td class="numero-checkin">
-            <span>
-              <?= $numero_checkin; ?>
-            </span>
+            <?php if ($checkin) : ?>
+              <span class="bi-check-lg checkin-status-mark" role="img" aria-label="Checked in"></span>
+            <?php else : ?>
+              <span class="checkin-status-empty" aria-label="Not checked in">-</span>
+            <?php endif; ?>
             <?php if (count($updates)) : ?>
-              <div class="dropdown" title="Registos de check-in">
+              <div class="dropdown" title="Check-in history">
                 <a class="bi-clock" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 </a>
 
                 <ul class="dropdown-menu">
                   <li>
-                    <h5 class="dropdown-header">Registos de check-in</h5>
+                    <h5 class="dropdown-header">Check-in history</h5>
                   </li>
                   <?php foreach ($updates as $i => $update) :
                     $update = explode(';', $update);
-                    $update_label = $update[0] . ' pessoa'
-                      . (($update[0] > 1) ? 's' : '');
                   ?>
                     <li class="dropdown-item">
-                      <span><?= $update_label ?></span>
-                      <span><?= date('d/m H:i', strtotime($update[1])); ?></span>
-                      <a href="?rm_checkin<?= "&id=$id&update=$i" ?>" class="bi-x-circle"></a>
+                      <span class="bi-check-lg checkin-history-mark" aria-hidden="true"></span>
+                      <span class="checkin-history-date"><?= date('d/m/Y H:i', strtotime($update[1])); ?></span>
                     </li>
                   <?php endforeach; ?>
                 </ul>
@@ -184,12 +197,10 @@ $change_enviado_query = get_filter_query('filter_enviado', $query_arr, [1, 2, 3]
           </td>
           <td class="actions">
             <div class="wrapper">
-              <a href="?remove=<?= $id; ?>" class="bi-trash3" title="Remover"></a>
-              <a href="?edit=<?= $id; ?>" class="bi-pencil-square" title="Editar"></a>
-              <a href="/get_qr.php?id=<?= $id; ?>" download class="bi-qr-code" title="Baixar QR Code"></a>
+              <a href="?remove=<?= rawurlencode($id); ?>&amp;csrf_token=<?= rawurlencode(csrf_token()); ?>" class="bi-trash3" title="Remove"></a>
+              <a href="/get_qr.php?id=<?= $id; ?>" download class="bi-qr-code" title="Download QR code"></a>
             </div>
           </td>
-          <td class="enviado" title="Marcar como enviado"><a href="?enviado=<?= $id; ?>" class="<?= $enviado ? 'bi-calendar2-check-fill' : 'bi-calendar-check'; ?>" target="_blank"></a></td>
         </tr>
       <?php
       endforeach;
@@ -198,8 +209,8 @@ $change_enviado_query = get_filter_query('filter_enviado', $query_arr, [1, 2, 3]
     else :
     ?>
       <tr>
-        <td colspan="6" class="small fs-italic">
-          Nenhum convidado foi encontrado
+        <td colspan="7" class="small fs-italic">
+          No guests found
         </td>
       </tr>
     <?php
@@ -209,32 +220,4 @@ $change_enviado_query = get_filter_query('filter_enviado', $query_arr, [1, 2, 3]
 
 
 </table>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Get all links with the class 'bi-check-square' (or the class you are using) inside the 'enviado' cells
-    const links = document.querySelectorAll('td.enviado a');
-
-    // Loop through each link and add the click event listener
-    links.forEach(function(link) {
-      link.addEventListener('click', function(event) {
-        event.preventDefault();
-
-        fetch(link.getAttribute('href'))
-          .then(response => {})
-          .catch(error => {
-            console.log('error', error)
-          });
-
-        var currentClass = link.className;
-        var newClass = 'bi-calendar2-check-fill';
-        if (currentClass == newClass) {
-          newClass = 'bi-calendar-check';
-        }
-
-        // Update the class of the link
-        link.className = newClass;
-      });
-    });
-  });
-</script>
+</div>

@@ -1,12 +1,11 @@
 <?php
-session_start();
+require_once __DIR__ . '/bootstrap.php';
 
-include 'const.php';
-include UTIL_DIR . '/util.php';
-
-if (!isset($_SESSION['user'])) {
+if (!refresh_session_profile()) {
   header('Location: login.php');
+  exit;
 }
+require_admin();
 
 $data_type = isset($_GET['data_type']) ? $_GET['data_type'] : 'guests';
 

@@ -1,77 +1,110 @@
 <?php
-$status = null;
+require_admin();
+
 $message = '';
-$redirect = '/';
+$success = false;
 
-// data received
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $name = trim($_POST['nome'] ?? '');
+  $email = strtolower(trim($_POST['email'] ?? ''));
+  $phone = trim($_POST['telefone'] ?? '');
+  $label = $_POST['label'] ?? '';
+  $id = bin2hex(random_bytes(16));
 
-  $id = md5($_POST['nome']);
-  $stayonpage  = $_POST['stayonpage'] ?? false;
-
-  unset($_POST['stayonpage']);
-
-  $data = array(
-    'id' => $id,
-    ...$_POST
-  );
-
-  $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-
-  if (guest_exists($id, $guests)) {
-    $status = false;
-    $message = 'Já existe um convidado com este nome.  Por favor utilize outro nome ou edite o registo já existente.';
-    $redirect = false;
+  if (!csrf_token_is_valid($_POST['csrf_token'] ?? null)) {
+    $message = 'Your session expired. Refresh the page and try again.';
+  } elseif ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $message = 'Enter a name and valid email address.';
+  } elseif (!in_array($label, get_account_labels(), true)) {
+    $message = 'Please select a valid guest category.';
   } else {
-    array_push($guests, $data);
-
-    $guests = json_encode($guests);
-
-    file_put_contents(DATA_DIR . '/guests.json', $guests);
-
-    $status = true;
-    $message = 'Convidado registado com sucesso.';
-    $redirect = $stayonpage ? '?register' : '/';
+    $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
+    if (guest_exists($id, $guests)) {
+      $message = 'A guest with this name already exists. Please use a different name or edit the existing record.';
+    } else {
+      $guest = [
+        'id' => $id,
+        'nome' => $name,
+        'numero' => 1,
+        'email' => $email,
+        'telefone' => $phone,
+        'label' => $label,
+        'attending' => true,
+        'enviado' => false,
+        'auth_user_id' => null,
+      ];
+      if (DEMO_MODE) {
+        $guests[] = $guest;
+        if (!save_data_to_dir(DATA_DIR . '/guests.json', $guests)) {
+          $message = 'Guest could not be saved: ' . (supabase_last_error() ?: 'Supabase request failed.');
+        } else {
+          $message = 'Demo guest saved locally. No invitation email was sent.';
+          $success = true;
+        }
+      } else {
+        $existing_profile = get_profile_by_email($email);
+        if ($existing_profile) {
+          $guest['auth_user_id'] = $existing_profile['id'];
+          $guests[] = $guest;
+          if (save_data_to_dir(DATA_DIR . '/guests.json', $guests)) {
+            $message = 'Guest registered and linked to the existing account.';
+            $success = true;
+          } else {
+            $message = 'Guest could not be saved: ' . (supabase_last_error() ?: 'Supabase request failed.');
+          }
+        } else {
+          $invitation = invite_guest_account($email, $name, $label);
+          if ($invitation !== false) {
+            $guest['auth_user_id'] = $invitation['id'] ?? $invitation['user']['id'] ?? null;
+            $guests[] = $guest;
+            if (save_data_to_dir(DATA_DIR . '/guests.json', $guests)) {
+              $message = 'Guest registered. An account invitation email has been sent.';
+              $success = true;
+            } else {
+              $message = 'The invitation email was sent, but the guest could not be saved: ' . (supabase_last_error() ?: 'Supabase request failed.');
+            }
+          } else {
+            $message = 'Guest was not added because the invitation email could not be sent: ' . (supabase_last_error() ?: 'Supabase request failed.');
+          }
+        }
+      }
+    }
   }
 }
-
-if ($message != '') {
-  $status_label = ($status) ? 'SUCESSO' : 'ERRO';
-  echo '<script>alert("' . $status_label . '\n' . $message . '");';
-  echo ($redirect !== false)
-    ? 'window.location.href = "' . $redirect . '";</script>'
-    : '</script>';
-}
-
 ?>
 
-<a href="?" class="btn btn-outline-primary mb-3 small">Voltar ao Início</a>
+<?php if ($message !== '') : ?>
+  <script>
+    alert(<?= json_encode($message, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>);
+    <?php if ($success) : ?>window.location.href = '/admin';<?php endif; ?>
+  </script>
+<?php endif; ?>
+
+<a href="/admin" class="btn btn-outline-primary mb-3 small">Back to dashboard</a>
 
 <form action="" method="post">
-  <h1>Registar Convidado</h1>
+  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+  <h1>Register guest</h1>
   <div class="mb-3">
-    <label for="nome" class="form-label">Nome</label>
-    <input type="text" class="form-control" id="nome" name="nome" placeholder="Pessoa ou Grupo" value="<?= $_POST['nome'] ?? ''; ?>" required>
+    <label for="nome" class="form-label">Name</label>
+    <input type="text" class="form-control" id="nome" name="nome" placeholder="Person or group" value="<?= htmlspecialchars($_POST['nome'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
   </div>
   <div class="mb-3">
     <label for="email" class="form-label">Email</label>
-    <input type="email" class="form-control" id="email" name="email" placeholder="email@exemplo.com" value="<?= $_POST['email'] ?? ''; ?>">
+    <input type="email" class="form-control" id="email" name="email" placeholder="guest@example.com" value="<?= htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
   </div>
   <div class="mb-3">
-    <label for="telefone" class="form-label">Telefone</label>
-    <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="999 999 999" value="<?= $_POST['telefone'] ?? ''; ?>">
+    <label for="label" class="form-label">Guest category</label>
+    <select class="form-select" id="label" name="label" required>
+      <option value="" selected disabled>Select a guest category</option>
+      <?php foreach (get_account_labels() as $account_label) : ?>
+        <option value="<?= htmlspecialchars($account_label, ENT_QUOTES, 'UTF-8'); ?>" <?= (($_POST['label'] ?? '') === $account_label) ? 'selected' : ''; ?>><?= htmlspecialchars($account_label, ENT_QUOTES, 'UTF-8'); ?></option>
+      <?php endforeach; ?>
+    </select>
   </div>
   <div class="mb-3">
-    <label for="numero" class="form-label">Número de pessoas no grupo</label>
-    <input type="number" class="form-control" id="numero" name="numero" required value="<?= $_POST['numero'] ?? 1; ?>">
+    <label for="telefone" class="form-label">Phone</label>
+    <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="555 555 5555" value="<?= htmlspecialchars($_POST['telefone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
   </div>
-  <div class="d-flex align-items-center">
-    <button type="submit" class="btn btn-primary">Registar</button>
-    <div class="form-check ms-3 small">
-      <input class="form-check-input" type="checkbox" name="stayonpage" value="true" id="stayonpage" checked="<?= $_POST['stayonpage'] ?? true; ?>">
-      <label class="form-check-label" for="stayonpage">
-        Continuar nesta página após registo
-      </label>
-    </div>
-  </div>
+  <button type="submit" class="btn btn-primary">Register guest and send invitation</button>
 </form>

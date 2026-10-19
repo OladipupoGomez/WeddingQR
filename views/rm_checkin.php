@@ -4,6 +4,11 @@ $message = '';
 
 if (isset($_GET['rm_checkin'])) {
 
+  if (!csrf_token_is_valid($_GET['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Invalid security token. Refresh the page and try again.');
+  }
+
   $id = $_GET['id'];
   $update_index = $_GET['update'];
 
@@ -15,37 +20,36 @@ if (isset($_GET['rm_checkin'])) {
     $data = get_guest_by_id($id, $checkin_guests);
     unset($data['updates'][$update_index]);
 
-    if (!count($data['updates']))
-    remove_guest_by_id($id, $checkin_guests);
-    else {
+    if (!count($data['updates'])) {
+      remove_guest_by_id($id, $checkin_guests);
+      delete_data_record(DATA_DIR . '/checkin.json', $id);
+    } else {
       $updates_numeros = array_map(function($update) { return explode(';', $update)[0];  }, $data['updates']);
       $data['numero'] = array_sum($updates_numeros);
 
       replace_guest_by_id($id, $data, $checkin_guests);
     }
 
-    $checkin_guests = json_encode($checkin_guests);
-
-    file_put_contents(DATA_DIR . '/checkin.json', $checkin_guests);
+    save_data_to_dir(DATA_DIR . '/checkin.json', $checkin_guests);
     $status = true;
-    $message = 'Check-in removido com sucesso.';
+    $message = 'Check-in removed successfully.';
   } else {
     // Confirm removal
     if (!$checkin = get_guest_by_id($id, $checkin_guests)) {
       $status = false;
-      $message = 'Nenhum check-in foi encontrado para este ID.';
+      $message = 'No check-in record was found for this ID.';
     } else if (!$guest = get_guest_by_id($id, $guests)) {
       $status = false;
-      $message = 'Nenhum check-in foi encontrado para este ID.';
+      $message = 'No check-in record was found for this ID.';
     } else {
       $update = $checkin['updates'][$update_index];
       $update = explode(';', $update);
-      $update_label = $update[0] . ' pessoa'
-        . (($update[0] > 1) ? 's' : '');
+      $update_label = $update[0] . ' '
+        . (($update[0] == 1) ? 'person' : 'people');
 
-      echo '<script>if(confirm("Deseja realmente excluir o seguinte check-in de ' . $guest['nome'] . '? ' .
+      echo '<script>if(confirm("Are you sure you want to delete this check-in for ' . htmlspecialchars($guest['nome'], ENT_QUOTES, 'UTF-8') . '? ' .
         '\n' . $update_label . ' - ' . date('d/m/Y H:i:s', strtotime($update[1])) . '"))'
-        . 'window.location.href = "?rm_checkin&id=' . $id . '&update=' . $update_index . '&really_remove"; '
+        . 'window.location.href = "?rm_checkin&id=' . rawurlencode($id) . '&update=' . (int)$update_index . '&really_remove&csrf_token=' . rawurlencode($_GET['csrf_token']) . '"; '
         . 'else window.location.href = "?"; </script>';
     }
   }
@@ -55,7 +59,7 @@ if (isset($_GET['rm_checkin'])) {
 
 
 if ($message != '') {
-  $status_label = ($status) ? 'SUCESSO' : 'ERRO';
+  $status_label = ($status) ? 'SUCCESS' : 'ERROR';
   echo '<script>alert("' . $status_label . '\n' . $message . '");'
     . 'window.location.href = "?";</script>';
 }

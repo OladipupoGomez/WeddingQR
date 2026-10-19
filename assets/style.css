@@ -59,6 +59,18 @@ header .home-link .brand {
   justify-content: center;
 }
 
+.checkin-toggle-form {
+  display: inline-block;
+  margin-right: .35rem;
+}
+
+.checkin-toggle-form .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  white-space: nowrap;
+}
+
 .table td.actions a {
   margin-right: .5rem;
   color: var(--bs-primary);
@@ -81,7 +93,21 @@ header .home-link .brand {
 .table td.numero-checkin>span {
   font-weight: bold;
   color: var(--bs-primary);
-  margin-right: .25rem;
+  margin-right: .5rem;
+}
+
+.admin-guests-table {
+  min-width: 820px;
+}
+
+.admin-guests-table th.checkin,
+.admin-guests-table td.checkin {
+  padding-right: 1.25rem;
+}
+
+.admin-guests-table th.numero-checkin,
+.admin-guests-table td.numero-checkin {
+  padding-left: 1.25rem;
 }
 
 .table td.numero-checkin>div {
@@ -90,14 +116,20 @@ header .home-link .brand {
 
 .table td.numero-checkin .dropdown-item {
   display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 1rem;
-  line-height: 1;
-  font-size: .9rem;
-  letter-spacing: 1px;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+  padding: .75rem .8rem;
+  line-height: 1.2;
+  font-size: .82rem;
+  letter-spacing: 0;
   color: #444;
 }
+
+.table td.numero-checkin .dropdown-menu { min-width: 0; width: max-content; max-width: min(220px, calc(100vw - 32px)); padding: .35rem 0; }
+.table td.numero-checkin .dropdown-header { padding: .35rem .8rem .5rem; font-size: .95rem; text-align: center; }
+.checkin-history-mark { color: var(--bs-success); font-size: 1.1rem; line-height: 1; }
+.checkin-history-date { text-align: center; white-space: nowrap; }
 
 .table td.numero-checkin .dropdown-item a {
   color: var(--bs-danger);
@@ -146,11 +178,11 @@ form label {
   }
 
   .table .checkin {
-    width: 80px;
+    width: 120px;
   }
 
   .table .numero-checkin {
-    width: 100px;
+    width: 120px;
   }
 
   .table .enviado {
@@ -266,15 +298,8 @@ footer a:hover {
     margin-right: .1rem;
   }
 
-  .table .contacto {
-    display: none;
-  }
   .table td.enviado {
     text-align: center;
-  }
-
-  .table {
-    overflow-y: scroll;
   }
 
   header .home-link {
@@ -290,11 +315,11 @@ footer a:hover {
 @media all and (max-width: 576px) {
 
   .table td.numero-checkin {
-    width: 70px;
+    width: 110px;
   }
 
   .table td.checkin {
-    width: 20px;
+    width: 110px;
   }
 
   .table td.actions {

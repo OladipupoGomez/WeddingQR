@@ -2,6 +2,8 @@
 $status = null;
 $message = '';
 $redirect = true;
+$guest = false;
+$already_checked_in = false;
 
 if (isset($_GET['checkin'])) {
 
@@ -13,86 +15,106 @@ if (isset($_GET['checkin'])) {
   $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
 
   if (!$guest = get_guest_by_id($checkin_id, $guests)) {
+    http_response_code(410);
     $status = false;
-    $message = 'Nenhum convidado foi encontrado.';
+    $message = 'This guest QR code is no longer active.';
+    $redirect = false;
   } else {
-    $nome = $guest['nome'];
-    $email = $guest['email'];
-    $telefone = $guest['telefone'];
-    $numero = $guest['numero'];
+    $nome = $guest['nome'] ?? $guest['name'] ?? '';
+    $email = $guest['email'] ?? '';
+    $telefone = $guest['telefone'] ?? '';
+    $guest_category = $guest['label'] ?? '';
+    $attending = $guest['attending'] ?? true;
+    $checked_guests = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
+    $already_checked_in = (bool)get_guest_by_id($checkin_id, $checked_guests);
   }
 } else {
   header('Location: /');
 }
 
 // data received
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-  $id = md5($nome);
-  $numero_checkin = $_POST['numeroCheckin'];
-
-  $data = array(
-    'id' => $id,
-    'numero' => $numero_checkin,
-    'updates' => [$numero_checkin . ';' . date('Y-m-d H:i:s', time())],
-  );
-
-  $checked_guests = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
-
-  // If guest is already checked in, get current number and sum with informed number
-  if ($current_guest = get_guest_by_id($id, $checked_guests)) {
-    $data['numero'] += intval($current_guest['numero']) ?? 0;
-    if (isset($current_guest['updates']))
-      array_unshift($data['updates'], ...$current_guest['updates']);
+  if (!csrf_token_is_valid($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Invalid security token. Refresh the page and try again.');
   }
 
-  if ($current_guest)
-    replace_guest_by_id($id, $data, $checked_guests);
-  else
-    array_push($checked_guests, $data);
+  if (!$guest || $status === false) {
+    http_response_code(404);
+    exit('Guest not found. Scan a valid guest QR code and try again.');
+  }
 
-  $checked_guests = json_encode($checked_guests);
+  $id = $guest['id'];
+  $checked_guests = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
+  if (get_guest_by_id($id, $checked_guests)) {
+    $already_checked_in = true;
+    $status = false;
+    $message = 'This guest has already been checked in.';
+  } else {
+    $data = [
+      'id' => $id,
+      'numero' => max(1, (int)($guest['numero'] ?? 1)),
+      'updates' => [max(1, (int)($guest['numero'] ?? 1)) . ';' . date('Y-m-d H:i:s')],
+    ];
+    $checked_guests[] = $data;
 
-  file_put_contents(DATA_DIR . '/checkin.json', $checked_guests);
-
-  $status = true;
-  $message = "Check-in realizado para $nome - $numero_checkin convidado(s).";
+    if (save_data_to_dir(DATA_DIR . '/checkin.json', $checked_guests)) {
+      $already_checked_in = true;
+      $status = true;
+      $message = 'Check-in completed for ' . $nome . '.';
+    } else {
+      $status = false;
+      $message = 'Check-in could not be saved: ' . (supabase_last_error() ?: 'storage request failed.');
+    }
+  }
 }
 
 if ($message != '') {
-  $status_label = ($status) ? 'SUCESSO' : 'ERRO';
+  $status_label = ($status) ? 'SUCCESS' : 'ERROR';
   echo '<script>alert("' . $status_label . '\n' . $message . '");';
   echo ($redirect) ? 'window.location.href = "?";</script>' : '</script>';
 }
 
 
 ?>
-<a href="?" class="btn btn-outline-primary mb-3 small">Voltar ao Início</a>
+<a href="?" class="btn btn-outline-primary mb-3 small">Back to home</a>
+<?php if ($guest) : ?>
 <form action="" method="post" class="checkin">
-  <h1>Confirmar Convidado</h1>
-  <h2>Dados informados:</h2>
+  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+  <h1>Confirm guest</h1>
+  <h2>Guest details</h2>
   <div class="mb-3 checkin-data">
     --
     <div class="mb-3 no me">
-      <b>Nome:</b> <span><?= $nome; ?></span>
+      <b>Name:</b> <span><?= htmlspecialchars($nome, ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
     <div class="mb-3">
-      <b>Email:</b> <span><?= $email; ?></span>
+      <b>Email:</b> <span><?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
     <div class="mb-3">
-      <b>Telefone:</b> <span><?= $telefone; ?></span>
+      <b>Phone:</b> <span><?= htmlspecialchars($telefone ?? '', ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
-    <div class="">
-      <b>Número de pessoas:</b> <span><?= $numero; ?></span>
+    <div class="mb-3">
+      <b>Guest category:</b> <span><?= htmlspecialchars($guest_category, ENT_QUOTES, 'UTF-8'); ?></span>
+    </div>
+    <div class="mb-3">
+      <b>RSVP:</b> <span><?= $attending ? 'Attending' : 'Declined'; ?></span>
+    </div>
+    <div class="mb-3">
+      <b>Check-in status:</b> <span><?= $already_checked_in ? 'Checked in' : 'Not checked in'; ?></span>
     </div>
     --
   </div>
-  <div class="mb-3">
-    <label for="numeroCheckin" class="form-label">Número de pessoas a entrar</label>
-    <input type="number" class="form-control" id="numeroCheckin" name="numeroCheckin" required min="1" value="<?= ($numero > 0) ? $numero : 1; ?>" aria-describedby="numeroHelp">
-    <div id="numeroHelp" class="form-text">O número de convidados será somado cada vez que o código for utilizado.</div>
-  </div>
   <div class="d-flex align-items-center">
-    <button type="submit" class="btn btn-primary">Confirmar</button>
+    <?php if ($already_checked_in) : ?>
+      <span class="btn btn-success disabled" aria-disabled="true">Already checked in</span>
+    <?php elseif ($guest) : ?>
+      <button type="submit" class="btn btn-primary">Confirm check-in</button>
+    <?php endif; ?>
   </div>
 </form>
+<?php else : ?>
+  <p>This guest QR code is no longer active.</p>
+  <a href="/admin" class="btn btn-outline-primary">Back to dashboard</a>
+<?php endif; ?>

@@ -1,22 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/bootstrap.php';
 
-include 'const.php';
-include UTIL_DIR . '/util.php';
-require BASE_DIR . '/vendor/autoload.php';
-
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
-use Endroid\QrCode\Label\Alignment\LabelAlignmentCenter;
-use Endroid\QrCode\Label\Font\NotoSans;
-use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
-use Endroid\QrCode\Writer\PngWriter;
-
-$continue = true;
-
-if (!isset($_SESSION['user'])) {
+if (!refresh_session_profile()) {
   header('Location: login.php');
+  exit;
 }
 
 if (isset($_GET['id'])) {
@@ -25,7 +12,8 @@ if (isset($_GET['id'])) {
   $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
   
   if (!$guest = get_guest_by_id($id, $guests)) {
-    $continue = false;
+    http_response_code(410);
+    exit('This guest QR code is no longer active.');
   } else {
     $nome = $guest['nome'];
     $email = $guest['email'];
@@ -34,27 +22,18 @@ if (isset($_GET['id'])) {
   }
 } 
 else {
-  $continue = false;
+  http_response_code(404);
+  exit('Guest QR code not found.');
 }
 
-if(!$continue){
-  exit;
+$qr_png = generate_guest_qr_png($id);
+if ($qr_png === false) {
+  http_response_code(500);
+  exit('Could not generate the guest QR code.');
 }
-
-$result = Builder::create()
-  ->writer(new PngWriter())
-  ->writerOptions([])
-  ->data($id)
-  ->encoding(new Encoding('UTF-8'))
-  ->errorCorrectionLevel(new ErrorCorrectionLevelHigh())
-  ->size(300)
-  ->margin(10)
-  ->roundBlockSizeMode(new RoundBlockSizeModeMargin())
-  ->validateResult(false)
-  ->build();
 
 // Directly output the QR code
 $filename = str_replace(' ', '-', $nome) . '.png';
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 header('Content-Type: image/png');
-echo $result->getString();
+echo $qr_png;

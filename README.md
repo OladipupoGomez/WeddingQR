@@ -1,147 +1,74 @@
-# 💍 QRápido - Wedding Guest Management System
+# ADE & OLA
 
-A comprehensive web application for wedding organizers to manage guest lists, generate QR codes for each guest, and streamline check-in logistics on the event day.
+Wedding invitation website with a public, password-free RSVP and a private guest-management dashboard. Guests do not create accounts to RSVP.
 
-## 🎯 Overview
+## Requirements
 
-**Lightweight PHP application** that simplifies wedding guest management from invitation to check-in. QRápido allows event organizers to register guests, generate unique QR codes, track invitations sent, and efficiently manage guest arrivals with a built-in QR scanner.
-
-Built with PHP and Bootstrap to provide an intuitive, mobile-friendly interface for wedding logistics management.
-
-## ✨ Key Features
-
-- **Guest Registration** - Complete guest management with contact details and party size
-- **QR Code Generation** - Automatic QR code creation for each guest using the Endroid QR Code library
-- **Check-in System** - Real-time guest check-in tracking with number of attendees
-- **QR Scanner** - Built-in scanner to validate guest QR codes at venue entrance
-- **Search & Filter** - Advanced filtering by check-in status, invitation sent status, and alphabetical ordering
-- **CSV Import/Export** - Bulk guest management and data export capabilities
-- **History Tracking** - Complete check-in history with timestamps for each guest entry
-- **Privacy-First** - All data stored locally on your server with file-based JSON storage
-
-## 🛠️ Tech Stack
-
-- **Backend:** PHP 7.4+
-- **Frontend:** Bootstrap 5.2.3, Bootstrap Icons
-- **QR Code Generation:** Endroid QR Code 4.8+
-- **Storage:** JSON file-based database (no SQL required)
-- **Dependencies:** Composer for PHP package management
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- PHP 7.4 or higher
+- PHP 7.4 or newer with cURL enabled
 - Composer
-- Web server (Apache/Nginx) or PHP built-in server
+- A Supabase project
 
-### Installation
+## Supabase Setup
 
-```bash
-# Clone the repository
-git clone https://github.com/ETVO/casamentoQR.git
-cd casamentoQR
+1. Create a Supabase project.
+2. Choose a lowercase schema name (for example, `wedding_app`). In each Supabase SQL script you use, replace every `{{SUPABASE_SCHEMA}}` placeholder with that name before running the script in the SQL Editor. Run `schema.sql` to create the empty profile, guest, and check-in tables; existing JSON files are not migrated. Add the same schema name to **Project Settings → API → Exposed schemas**.
+3. In **Authentication > URL Configuration**, set the Site URL to `http://localhost:8001` and add these Redirect URLs:
+   - `http://localhost:8001/login.php?confirmed=1`
+   - `http://localhost:8001/invite`
+4. In **Authentication > Providers**, enable email/password sign-in and email confirmation.
+5. From **Project Settings > API** (or **Data API** in the current dashboard), copy the Project URL, the publishable/anon key, and the secret/service-role key. Put these in `config.local.php` as `SUPABASE_PROJECT_URL`, `SUPABASE_PUBLIC_KEY`, and `SUPABASE_PRIVATE_SERVICE_KEY`; set `SUPABASE_SCHEMA` to the same schema name. Never paste the private service-role key into chat, frontend code, or a committed file.
+6. Copy `config.example.php` to `config.local.php`. Set `ADEOLA_DEMO_MODE` to `false`, enter those three Supabase values, set `RSVP_EMAIL_FUNCTION_SECRET` to a long random value, and use `ADEOLA_APP_URL` for the current site URL.
+7. Under **Authentication > URL Configuration**, set the Site URL to the live site URL and add it to the Redirect URLs. For local testing use `http://localhost:8001`, `http://localhost:8001/login.php?confirmed=1`, and `http://localhost:8001/invite`.
+8. For Supabase Auth invitation emails, configure **Authentication > SMTP Settings**. For RSVP and uninvitation emails, configure a verified sender with Resend and set the Edge Function secrets below.
 
-# Install dependencies
+## Admin Access
+
+The public wedding site is at `/`; the password-free RSVP is at `/register`; admin tools are at `/admin` and require an admin account. In demo mode, open `/login.php` and use **Set up the demo admin account** before exposing the site. The first demo account becomes admin.
+
+With Supabase, run [`supabase/admin_creation_trigger.sql`](supabase/admin_creation_trigger.sql) once in the SQL Editor after replacing its schema placeholder as above. After that, Auth users created through **Authentication > Users** automatically get the `admin` role. Guest accounts invited by the app carry an `account_type = guest` marker and remain regular users. Turn off public email sign-ups in Supabase Auth settings so untrusted sign-ups cannot receive admin access. The standalone [`supabase/promote_admin.sql`](supabase/promote_admin.sql) remains available to manually promote an existing profile.
+
+Sign in at `/login.php` after promoting the user. The admin dashboard displays RSVPs. Admins can add guests; each guest must have an email and guest category, and receives a Supabase invitation email to set a password. The public RSVP does not create an account or ask for a password. In live mode, public RSVP confirmation emails include a guest QR code and Google Maps directions. Deleting an admin guest sends a polite uninvitation email before removing the record; if email delivery fails, removal is stopped so it can be retried. Labels categorize guests and do not grant permissions.
+
+## Run Locally
+
+From the project directory:
+
+```sh
 composer install
-
-# Set up permissions for data directory
-chmod 755 data/
-
-# Start PHP development server
-php -S localhost:8000
+php -S localhost:8001 router.php
 ```
 
-Access the application at `http://localhost:8000`
+Open `http://localhost:8001` for the invitation, `http://localhost:8001/register` to RSVP, and `http://localhost:8001/admin` for administration. Port 8000 was already in use during setup, so the app is configured for 8001. For Supabase email links to work, add the exact local redirect URLs above. PHP's built-in server is for local development; production deployments need HTTPS and a configured PHP runtime.
 
-### Initial Setup
+## Deploy to Vercel
 
-1. On first access, you'll be prompted to create login credentials
-2. Navigate to "Registar convidados" to add your first guests
-3. Use the QR code download feature to generate codes for invitations
-4. On event day, use "Scanner Código QR" to check in guests
+This project uses the community `vercel-php` runtime. Before importing the repository into Vercel, replace the schema placeholder in [`supabase/vercel_sessions.sql`](supabase/vercel_sessions.sql) with your chosen schema and run it once in the Supabase SQL Editor. The app stores PHP sessions in that table so admin sign-ins and RSVP form tokens work across serverless requests. Vercel deployments must use Supabase mode; local JSON data is excluded from deployments.
 
-## 📋 Features Breakdown
+In the Vercel project settings, add these environment variables for Production and Preview:
 
-### Guest Management
-- Register guests with name, email, phone, and party size
-- Edit guest information anytime before the event
-- Delete guests if plans change
-- Mark invitations as sent to track communication
+- `ADEOLA_DEMO_MODE=false`
+- `SUPABASE_PROJECT_URL`
+- `SUPABASE_PUBLIC_KEY`
+- `SUPABASE_PRIVATE_SERVICE_KEY`
+- `SUPABASE_SCHEMA` (the same schema name used in the SQL scripts)
+- `RSVP_EMAIL_FUNCTION_SECRET`
+- `ADEOLA_APP_URL` (the deployed site URL, such as `https://your-project.vercel.app`)
+- `ADEOLA_GIFT_REGISTRY_URL` (your GiftDice wishlist share link)
 
-### QR Code System
-- Unique QR code generated for each guest
-- Downloadable QR codes for printing on invitations
-- Scannable codes that link back to guest record
+Import the GitHub repository in Vercel and deploy a Preview first. Add the deployed URL to Supabase Authentication's Site URL and Redirect URLs before using guest invitations. Keep the service-role key in Vercel's server-side environment settings only.
 
-### Check-in Logistics
-- Live QR scanner for quick guest validation
-- Manual check-in option if QR code unavailable
-- Track number of guests checked in vs. registered
-- View check-in history with timestamps
-- Remove incorrect check-ins if needed
+## Local Demo Mode
 
-### Data Management
-- Export full guest list to CSV for external use
-- Import guests via CSV for bulk operations
-- Filter guests by:
-  - Check-in status (checked in / not checked in)
-  - Invitation status (sent / not sent)
-  - Alphabetical order (A-Z or Z-A)
-- Search functionality across all guest fields
+Demo mode is enabled automatically when Supabase credentials are not configured. You can also force it with `define('ADEOLA_DEMO_MODE', true);` in `config.local.php`. Create the first admin account from the login page using its setup link. Demo accounts and password hashes are stored locally in ignored `data/demo_accounts.php`; RSVP and check-in changes use the local JSON files. RSVPs require no password, and no confirmation or invitation emails are sent in demo mode. To switch back to Supabase, set `ADEOLA_DEMO_MODE` to `false` after filling in the real project credentials.
 
-## 💡 Use Cases
+## RSVP Confirmation Email
 
-- **Wedding Organizers** - Comprehensive guest management from invitation to arrival
-- **Event Planners** - Scalable solution for any event requiring guest tracking
-- **Venue Managers** - Efficient check-in system to manage event capacity
-- **Catering Services** - Accurate guest counts for meal preparation
+RSVP confirmations and guest-uninvitation notices are sent through [`supabase/functions/rsvp-confirmation/index.ts`](supabase/functions/rsvp-confirmation/index.ts). RSVP emails include the guest's QR code and Google Maps directions. When an admin deletes a guest, the app sends a polite uninvitation email first; if delivery fails, deletion is stopped so the admin can retry. In demo mode no email is sent and deletion remains local. Deploy or redeploy the function with `supabase functions deploy rsvp-confirmation` and leave JWT verification enabled. Set its Edge Function secrets `RESEND_API_KEY`, `RSVP_FROM_EMAIL` (a sender address verified by Resend), and `RSVP_EMAIL_FUNCTION_SECRET`; use the same function secret in `config.local.php`. Guest account invitations use Supabase Auth SMTP and templates.
 
-## 📁 Project Structure
+## Security Notes
 
-```
-casamentoQR/
-├── assets/          # CSS, images, and static resources
-├── data/            # JSON storage for guests and check-ins
-├── util/            # Helper functions and utilities
-├── views/           # PHP view templates for each feature
-├── index.php        # Main application entry point
-├── login.php        # Authentication system
-├── get_qr.php       # QR code generation endpoint
-├── get_csv.php      # CSV export functionality
-└── composer.json    # PHP dependencies
-```
-
-## 🔒 Security Notes
-
-- Session-based authentication required for all operations
-- Data stored in local JSON files (ensure proper server permissions)
-- No external API calls - all data remains on your server
-- Recommended to use HTTPS in production environment
-
-## 🌐 Deployment
-
-For production deployment:
-
-1. Upload files to your web server
-2. Run `composer install --no-dev` for production dependencies
-3. Ensure `data/` directory is writable by web server
-4. Configure your web server to route all requests through `index.php`
-5. Set up HTTPS for secure guest data transmission
-6. Update login credentials from default
-
-## 👤 Author
-
-**Estevão Pereira Rolim** - [@ETVO](https://github.com/ETVO) | [LinkedIn](https://linkedin.com/in/estevao-p-rolim)
-
-Full Stack Developer with 8 years of experience in PHP and JavaScript development.
-
-## 📄 License
-
-This project is available for personal and commercial use.
-
----
-
-*Developed as a freelance project for wedding event management. Built with PHP to provide a reliable, self-hosted guest management solution.*
-
-*README generated in collaboration with Claude AI.*
+- Passwords and email confirmation are managed by Supabase Auth.
+- The Supabase service-role key is used only by the PHP server and bypasses Row Level Security. Keep it private.
+- Profile, guest, and check-in tables have Row Level Security enabled; the public API key cannot directly read or modify guest/check-in records.
+- Admin-only account listing, guest registration, and CSV import are checked server-side against the current Supabase profile role.
+- Existing `data/guests.json` and `data/checkin.json` data remains untouched. New records go to Supabase.
