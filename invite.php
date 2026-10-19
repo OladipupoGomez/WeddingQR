@@ -95,5 +95,9 @@ if (isset($_SESSION['invite_pending'])) {
       </script>
     <?php endif; ?>
   </div>
+  <script type="module">
+    import { injectSpeedInsights } from '/assets/speed-insights.mjs';
+    injectSpeedInsights();
+  </script>
 </body>
 </html>

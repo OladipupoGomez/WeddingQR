@@ -163,5 +163,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </section>
     </div>
   </main>
+  <script type="module">
+    import { injectSpeedInsights } from '/assets/speed-insights.mjs';
+    injectSpeedInsights();
+  </script>
 </body>
 </html>
