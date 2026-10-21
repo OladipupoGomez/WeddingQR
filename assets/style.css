@@ -35,8 +35,8 @@ body {
 
 .admin-logo {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: 112px;
+  height: 112px;
   object-fit: contain;
 }
 
@@ -46,11 +46,10 @@ body {
 }
 
 .login-page-logo {
-  position: fixed;
-  top: 22px;
-  left: 26px;
-  width: 88px;
-  height: 88px;
+  display: block;
+  width: 136px;
+  height: 136px;
+  margin: 0 auto 16px;
   object-fit: contain;
 }
 
@@ -402,15 +401,6 @@ form label {
 .login input,
 .login button {
   font-size: 1.1rem;
-}
-
-@media (max-width: 576px) {
-  .login-page-logo {
-    top: 12px;
-    left: 12px;
-    width: 72px;
-    height: 72px;
-  }
 }
 
 footer {

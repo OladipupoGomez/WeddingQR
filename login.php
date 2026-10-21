@@ -158,8 +158,8 @@ if (isset($_GET['confirmed'])) {
 </head>
 
 <body class="login">
-  <img class="login-page-logo" src="/assets/adeola-2026-logo.png" alt="Ade and Ola wedding logo">
   <div class="container py-3 col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
+    <img class="login-page-logo" src="/assets/adeola-2026-logo.png" alt="Ade and Ola wedding logo">
     <form action="" method="post">
       <h1><?= $is_registering ? 'Create account' : 'Log in'; ?></h1>
       <?php if ($message !== '') : ?>
