@@ -37,7 +37,7 @@ if (isset($_GET['rm_checkin'])) {
   exit('Check-ins cannot be undone.');
 }
 
-if (isset($_GET['enviado'])) {
+if (isset($_GET['invitation_sent'])) {
   http_response_code(410);
   exit('Invitation sent tracking is temporarily disabled.');
 }
@@ -49,8 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['really_remove'])) {
   }
 
   $remove_id = $_POST['remove'] ?? '';
-  $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-  $guest = is_string($remove_id) ? get_guest_by_id($remove_id, $guests) : null;
+  $guest = is_string($remove_id) ? get_guest_record_by_id($remove_id) : null;
 
   if (!$guest) {
     $_SESSION['admin_removal_notice'] = [
@@ -98,16 +97,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
   if (!$guest) {
     $checkin_notice = 'Guest not found.';
   } elseif ($checkin) {
-    $checkin_notice = $guest['nome'] . ' is already checked in.';
+    $checkin_notice = $guest['name'] . ' is already checked in.';
   } else {
-    $guest_count = max(1, (int)($guest['numero'] ?? 1));
+    $guest_count = max(1, (int)($guest['group_size'] ?? 1));
     $checkins[] = [
       'id' => $guest_id,
-      'numero' => $guest_count,
+      'check_in_count' => $guest_count,
       'updates' => [$guest_count . ';' . date('Y-m-d H:i:s')],
     ];
     if (save_data_to_dir(DATA_DIR . '/checkin.json', $checkins)) {
-      $checkin_notice = 'Checked in ' . $guest['nome'] . '.';
+      $checkin_notice = 'Checked in ' . $guest['name'] . '.';
     } else {
       $checkin_notice = 'Could not update check-in status: ' . (supabase_last_error() ?: 'storage request failed.');
     }
@@ -176,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
     if (isset($_GET['import_csv']))
       $option = 'import_csv';
 
-    if (in_array($option, ['register', 'edit', 'remove', 'csv', 'import_csv'], true) || isset($_GET['enviado']))
+    if (in_array($option, ['register', 'edit', 'remove', 'csv', 'import_csv'], true) || isset($_GET['invitation_sent']))
       require_admin();
 
     if ($option === 'edit') : ?>

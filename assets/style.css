@@ -249,7 +249,7 @@ header .home-link .brand {
   color: #ddd;
 }
 
-.table td.numero-checkin>span {
+.table td.checkin-status>span {
   font-weight: bold;
   color: var(--bs-primary);
   margin-right: .5rem;
@@ -264,16 +264,16 @@ header .home-link .brand {
   padding-right: 1.25rem;
 }
 
-.admin-guests-table th.numero-checkin,
-.admin-guests-table td.numero-checkin {
+.admin-guests-table th.checkin-status,
+.admin-guests-table td.checkin-status {
   padding-left: 1.25rem;
 }
 
-.table td.numero-checkin>div {
+.table td.checkin-status>div {
   display: inline-flex;
 }
 
-.table td.numero-checkin .dropdown-item {
+.table td.checkin-status .dropdown-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -285,16 +285,16 @@ header .home-link .brand {
   color: #444;
 }
 
-.table td.numero-checkin .dropdown-menu { min-width: 0; width: max-content; max-width: min(220px, calc(100vw - 32px)); padding: .35rem 0; }
-.table td.numero-checkin .dropdown-header { padding: .35rem .8rem .5rem; font-size: .95rem; text-align: center; }
+.table td.checkin-status .dropdown-menu { min-width: 0; width: max-content; max-width: min(220px, calc(100vw - 32px)); padding: .35rem 0; }
+.table td.checkin-status .dropdown-header { padding: .35rem .8rem .5rem; font-size: .95rem; text-align: center; }
 .checkin-history-mark { color: var(--bs-success); font-size: 1.1rem; line-height: 1; }
 .checkin-history-date { text-align: center; white-space: nowrap; }
 
-.table td.numero-checkin .dropdown-item a {
+.table td.checkin-status .dropdown-item a {
   color: var(--bs-danger);
 }
 
-.table td.nome .numero {
+.table td.name .group-size {
   font-size: .85rem;
   color: #888;
 }
@@ -340,11 +340,11 @@ form label {
     width: 120px;
   }
 
-  .table .numero-checkin {
+  .table .checkin-status {
     width: 120px;
   }
 
-  .table .enviado {
+  .table .invitation-sent {
     width: 80px;
   }
 }
@@ -453,11 +453,11 @@ footer a:hover {
     gap: .25rem;
   }
 
-  .table td.numero-checkin>span {
+  .table td.checkin-status>span {
     margin-right: .1rem;
   }
 
-  .table td.enviado {
+  .table td.invitation-sent {
     text-align: center;
   }
 
@@ -473,7 +473,7 @@ footer a:hover {
 
 @media all and (max-width: 576px) {
 
-  .table td.numero-checkin {
+  .table td.checkin-status {
     width: 110px;
   }
 

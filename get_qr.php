@@ -15,10 +15,10 @@ if (isset($_GET['id'])) {
     http_response_code(410);
     exit('This guest QR code is no longer active.');
   } else {
-    $nome = $guest['nome'];
-    $email = $guest['email'];
-    $telefone = $guest['telefone'];
-    $numero = $guest['numero'];
+    $guest_name = $guest['name'] ?? 'Guest';
+    $email = $guest['email'] ?? '';
+    $phone = $guest['phone'] ?? '';
+    $group_size = $guest['group_size'] ?? 1;
   }
 } 
 else {
@@ -33,7 +33,7 @@ if ($qr_png === false) {
 }
 
 // Directly output the QR code
-$filename = str_replace(' ', '-', $nome) . '.png';
+$filename = str_replace(' ', '-', $guest_name) . '.png';
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 header('Content-Type: image/png');
 echo $qr_png;

@@ -20,9 +20,9 @@ if (isset($_GET['checkin'])) {
     $message = 'This guest QR code is no longer active.';
     $redirect = false;
   } else {
-    $nome = $guest['nome'] ?? $guest['name'] ?? '';
+    $guest_name = $guest['name'] ?? '';
     $email = $guest['email'] ?? '';
-    $telefone = $guest['telefone'] ?? '';
+    $phone = $guest['phone'] ?? '';
     $guest_category = $guest['label'] ?? '';
     $attending = $guest['attending'] ?? true;
     $checked_guests = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
@@ -54,15 +54,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   } else {
     $data = [
       'id' => $id,
-      'numero' => max(1, (int)($guest['numero'] ?? 1)),
-      'updates' => [max(1, (int)($guest['numero'] ?? 1)) . ';' . date('Y-m-d H:i:s')],
+      'check_in_count' => max(1, (int)($guest['group_size'] ?? 1)),
+      'updates' => [max(1, (int)($guest['group_size'] ?? 1)) . ';' . date('Y-m-d H:i:s')],
     ];
     $checked_guests[] = $data;
 
     if (save_data_to_dir(DATA_DIR . '/checkin.json', $checked_guests)) {
       $already_checked_in = true;
       $status = true;
-      $message = 'Check-in completed for ' . $nome . '.';
+      $message = 'Check-in completed for ' . $guest_name . '.';
     } else {
       $status = false;
       $message = 'Check-in could not be saved: ' . (supabase_last_error() ?: 'storage request failed.');
@@ -87,13 +87,13 @@ if ($message != '') {
   <div class="mb-3 checkin-data">
     --
     <div class="mb-3 no me">
-      <b>Name:</b> <span><?= htmlspecialchars($nome, ENT_QUOTES, 'UTF-8'); ?></span>
+      <b>Name:</b> <span><?= htmlspecialchars($guest_name, ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
     <div class="mb-3">
       <b>Email:</b> <span><?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
     <div class="mb-3">
-      <b>Phone:</b> <span><?= htmlspecialchars($telefone ?? '', ENT_QUOTES, 'UTF-8'); ?></span>
+      <b>Phone:</b> <span><?= htmlspecialchars($phone ?? '', ENT_QUOTES, 'UTF-8'); ?></span>
     </div>
     <div class="mb-3">
       <b>Guest category:</b> <span><?= htmlspecialchars($guest_category, ENT_QUOTES, 'UTF-8'); ?></span>

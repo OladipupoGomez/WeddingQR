@@ -5,9 +5,9 @@ $message = '';
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $name = trim($_POST['nome'] ?? '');
+  $name = trim($_POST['name'] ?? '');
   $email = strtolower(trim($_POST['email'] ?? ''));
-  $phone = trim($_POST['telefone'] ?? '');
+  $phone = trim($_POST['phone'] ?? '');
   $label = $_POST['label'] ?? '';
 
   if (!csrf_token_is_valid($_POST['csrf_token'] ?? null)) {
@@ -26,13 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $id = bin2hex(random_bytes(16));
       $guest = [
         'id' => $id,
-        'nome' => $name,
-        'numero' => 1,
+        'name' => $name,
+        'group_size' => 1,
         'email' => $email,
-        'telefone' => $phone,
+        'phone' => $phone,
         'label' => $label,
         'attending' => true,
-        'enviado' => false,
+        'invitation_sent' => false,
         'auth_user_id' => null,
       ];
       if (DEMO_MODE) {
@@ -89,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
   <h1>Register guest</h1>
   <div class="mb-3">
-    <label for="nome" class="form-label">Name</label>
-    <input type="text" class="form-control" id="nome" name="nome" maxlength="120" placeholder="Person or group" value="<?= htmlspecialchars($_POST['nome'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+    <label for="name" class="form-label">Name</label>
+    <input type="text" class="form-control" id="name" name="name" maxlength="120" placeholder="Person or group" value="<?= htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
   </div>
   <div class="mb-3">
     <label for="email" class="form-label">Email</label>
@@ -106,8 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </select>
   </div>
   <div class="mb-3">
-    <label for="telefone" class="form-label">Phone</label>
-    <input type="tel" class="form-control" id="telefone" name="telefone" maxlength="25" placeholder="555 555 5555" value="<?= htmlspecialchars($_POST['telefone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+    <label for="phone" class="form-label">Phone</label>
+    <input type="tel" class="form-control" id="phone" name="phone" maxlength="25" placeholder="555 555 5555" value="<?= htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
   </div>
   <button type="submit" class="btn btn-primary">Register guest and send invitation</button>
 </form>

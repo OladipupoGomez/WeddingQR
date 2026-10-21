@@ -7,8 +7,7 @@ if (!is_string($remove_id) || $remove_id === '') {
   return;
 }
 
-$guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-$guest = get_guest_by_id($remove_id, $guests);
+$guest = get_guest_record_by_id($remove_id);
 if (!$guest) {
   http_response_code(404);
   ?>
@@ -23,7 +22,7 @@ if (!$guest) {
   return;
 }
 
-$guest_name = $guest['nome'] ?? 'this guest';
+$guest_name = $guest['name'] ?? 'this guest';
 $guest_email = $guest['email'] ?? '';
 ?>
 <section class="admin-remove-panel" aria-labelledby="remove-guest-title">

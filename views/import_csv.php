@@ -25,21 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   foreach ($csv_data as $row) {
     $row = array_slice(array_pad($row, count($keys), null), 0, count($keys));
 
-    $new_guest = array_combine($keys, $row);
-    if (!$new_guest['numero'])
-      $new_guest['numero'] = 0;
-    else {
-      $new_guest['numero'] = intval($new_guest['numero']);
-    }
-
-    $new_guest['id'] = md5($new_guest['nome']);
+    $new_guest = normalize_guest_record(array_combine($keys, $row));
+    $new_guest['group_size'] = (int)($new_guest['group_size'] ?? 0);
+    $new_guest['id'] = md5($new_guest['name']);
 
 
     if ($found_guest = get_guest_by_id($new_guest['id'], $guests)) {
-      if (!isset($new_guest['enviado']))
-        $new_guest['enviado'] = (isset($found_guest['enviado']) && $found_guest['enviado'] != '') ? $found_guest['enviado'] : false;
+      if (!isset($new_guest['invitation_sent']))
+        $new_guest['invitation_sent'] = (isset($found_guest['invitation_sent']) && $found_guest['invitation_sent'] != '') ? $found_guest['invitation_sent'] : false;
       else {
-        $new_guest['enviado'] = boolval($new_guest['enviado']);
+        $new_guest['invitation_sent'] = boolval($new_guest['invitation_sent']);
       }
       replace_guest_by_id($new_guest['id'], $new_guest, $guests);
     } else {

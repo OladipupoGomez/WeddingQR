@@ -52,7 +52,7 @@ if (isset($_GET['s']) && $_GET['s'] != '') {
 $order = $_GET['order'] ?? '';
 if (!is_string($order)) $order = '';
 if (in_array($order, ['AZ', 'ZA'], true)) {
-  $guests = order_guests_by_nome($guests, $order);
+  $guests = order_guests_by_name($guests, $order);
 }
 $filter_checkin = $_GET['filter_checkin'] ?? '';
 if (!is_string($filter_checkin)) $filter_checkin = '';
@@ -123,7 +123,7 @@ if ($filter_category !== '') {
     <th class="email">Email</th>
     <th class="phone">Phone</th>
     <th class="checkin">Check-in</th>
-    <th class="numero-checkin">Check-in status</th>
+    <th class="checkin-status">Check-in status</th>
     <th class="actions"></th>
     </tr>
   </thead>
@@ -135,17 +135,17 @@ if ($filter_category !== '') {
       foreach ($guests as $guest) :
 
         $id = $guest['id'];
-        $name = $guest['nome'] ?? $guest['name'] ?? '';
-        $numero = $guest['numero'];
+        $name = $guest['name'] ?? '';
+        $group_size = $guest['group_size'];
         $email = $guest['email'] ?? '';
-        $telefone = $guest['telefone'] ?? '';
+        $phone = $guest['phone'] ?? '';
         $label = $guest['label'] ?? '';
 
-        $numero_checkin = '-';
+        $check_in_count = '-';
         $updates = [];
 
         if ($checkin = get_guest_by_id($id, $checkin_guests)) {
-          $numero_checkin = $checkin['numero'];
+          $check_in_count = $checkin['check_in_count'];
           $updates = $checkin['updates'];
         }
 
@@ -154,7 +154,7 @@ if ($filter_category !== '') {
           <td class="name"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></td>
           <td class="guest-category"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></td>
           <td class="email"><?= htmlspecialchars($email ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
-          <td class="phone"><?= htmlspecialchars($telefone ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="phone"><?= htmlspecialchars($phone ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
           <td class="checkin">
             <?php if (!$checkin) : ?>
               <form method="post" action="/admin" class="checkin-toggle-form">
@@ -167,8 +167,8 @@ if ($filter_category !== '') {
               <a href="?checkin=<?= rawurlencode($id); ?>" class="small" title="Adjust checked-in guest count">Adjust</a>
             <?php endif; ?>
           </td>
-          <!-- <td class="numero d-none d-sm-table-cell"><?= $numero; ?></td> -->
-          <td class="numero-checkin">
+          <!-- <td class="group-size d-none d-sm-table-cell"><?= $group_size; ?></td> -->
+          <td class="checkin-status">
             <?php if ($checkin) : ?>
               <span class="bi-check-lg checkin-status-mark" role="img" aria-label="Checked in"></span>
             <?php else : ?>

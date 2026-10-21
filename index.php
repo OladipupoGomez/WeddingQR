@@ -60,7 +60,7 @@ require_once __DIR__ . '/bootstrap.php';
         <p>We’re gathering our favourite people for a day filled with warmth, good company, and memories we’ll carry with us. It wouldn’t be the same without you.</p>
       </div>
       <figure class="story-photo">
-        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=85" alt="A couple celebrating together on their wedding day" loading="lazy">
+        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=75" alt="A couple celebrating together on their wedding day" loading="lazy" decoding="async">
         <figcaption>A day to remember</figcaption>
       </figure>
     </section>
@@ -91,6 +91,7 @@ require_once __DIR__ . '/bootstrap.php';
     </section>
 
     <section class="registry" id="registry">
+      <img class="registry-photo" src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1400&q=75" alt="" loading="lazy" decoding="async">
       <div class="registry-shade"></div>
       <div class="registry-copy">
         <p class="eyebrow">WITH LOVE AND GRATITUDE</p>

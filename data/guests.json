@@ -1,43 +1,21 @@
 [
     {
         "id": "098f6bcd4621d373cade4e832627b4f6",
-        "nome": "test",
         "email": "test123@gamil.com",
-        "telefone": "87654321",
-        "numero": "1",
-        "enviado": false
+        "name": "test",
+        "group_size": "1",
+        "phone": "87654321",
+        "invitation_sent": false
     },
     {
         "id": "3a6e372ed11e9bc975215430fe82c28f",
-        "nome": "test-user",
-        "numero": 1,
         "email": "test-user@gmail.com",
-        "telefone": "",
-        "enviado": false,
         "auth_user_id": null,
         "label": "Groomsmen",
-        "attending": true
-    },
-    {
-        "id": "11c4d4cee31dcccf93ab17594490ebb2",
-        "nome": "gacop gomez",
-        "numero": 1,
-        "email": "gacot55336@aperiol.com",
-        "telefone": "+2348976543",
-        "enviado": false,
-        "auth_user_id": null,
-        "label": "VIP",
-        "attending": true
-    },
-    {
-        "id": "f431e7bda5d98db9564afafd2f80764e",
-        "nome": "Oladipupo Gomez",
-        "numero": 1,
-        "email": "testgomez5@gmail.com",
-        "telefone": "+23480",
-        "enviado": false,
-        "auth_user_id": null,
-        "label": "VIP",
-        "attending": true
+        "attending": true,
+        "name": "test-user",
+        "group_size": 1,
+        "phone": "",
+        "invitation_sent": false
     }
 ]

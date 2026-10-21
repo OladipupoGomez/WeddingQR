@@ -33,45 +33,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = 'Please select your guest category.';
   } else {
     $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-    $existing_guest = false;
-    $email_matches = [];
-    foreach ($guests as $guest) {
-      if (strtolower(trim((string)($guest['email'] ?? ''))) === $email) {
-        $email_matches[] = $guest;
-      }
-    }
-
-    if (count($email_matches) > 1) {
-      $message = 'This email address is already linked to more than one guest. Please contact the wedding hosts.';
-    } elseif ($email_matches) {
-      $existing_guest = $email_matches[0];
+    if (find_guest_duplicate($name, $email, $phone, $guests)) {
+      $message = 'A guest with this name, email address, or phone number already exists. Please check your details or contact the wedding hosts.';
     }
 
     if ($message === '') {
-      if (find_guest_duplicate($name, $email, $phone, $guests, $existing_guest['id'] ?? null)) {
-        $message = 'An RSVP already exists with this name, email address, or phone number. Please check your details or contact the wedding hosts.';
-      }
-    }
-
-    if ($message === '') {
-      $guest_id = $existing_guest ? $existing_guest['id'] : bin2hex(random_bytes(16));
       $guest = [
-        'id' => $guest_id,
-        'nome' => $name,
-        'numero' => 1,
+        'id' => bin2hex(random_bytes(16)),
+        'name' => $name,
+        'group_size' => 1,
         'email' => $email,
-        'telefone' => $phone,
-        'enviado' => $existing_guest['enviado'] ?? false,
-        'auth_user_id' => $existing_guest['auth_user_id'] ?? null,
+        'phone' => $phone,
+        'invitation_sent' => false,
+        'auth_user_id' => null,
         'label' => $label,
         'attending' => $attending,
       ];
 
-      if ($existing_guest) {
-        replace_guest_by_id($guest_id, $guest, $guests);
-      } else {
-        $guests[] = $guest;
-      }
+      $guests[] = $guest;
 
       if (save_data_to_dir(DATA_DIR . '/guests.json', $guests)) {
         $email_sent = send_rsvp_confirmation($guest);
@@ -107,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="eyebrow">THE WEDDING OF THE CENTURY</p>
         <h1>Save your<br>place.</h1>
         <p class="rsvp-script">We look forward to celebrating with you</p>
-        <p>Please reply for yourself. You can update your response later using the same email address.</p>
+        <p>Please reply for yourself. Your name, email address, and phone number must not already be registered.</p>
       </section>
       <section class="rsvp-form-wrap" aria-labelledby="rsvp-title">
         <h2 id="rsvp-title"><?= isset($_GET['sent']) ? 'Thank you for your Response' : 'Kindly RSVP'; ?></h2>

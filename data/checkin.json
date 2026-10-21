@@ -1,33 +1,33 @@
 [
     {
         "id": "3a6e372ed11e9bc975215430fe82c28f",
-        "numero": 2,
         "updates": [
             "1;2026-10-18 08:07:30",
             "1;2026-10-18 08:36:15"
-        ]
+        ],
+        "check_in_count": 2
     },
     {
         "id": "098f6bcd4621d373cade4e832627b4f6",
-        "numero": 3,
         "updates": [
             "1;2026-10-18 08:11:47",
             "1;2026-10-18 08:11:57",
             "1;2026-10-18 08:36:23"
-        ]
+        ],
+        "check_in_count": 3
     },
     {
         "id": "11c4d4cee31dcccf93ab17594490ebb2",
-        "numero": 1,
         "updates": [
             "1;2026-10-18 08:12:04"
-        ]
+        ],
+        "check_in_count": 1
     },
     {
         "id": "f431e7bda5d98db9564afafd2f80764e",
-        "numero": 1,
         "updates": [
             "1;2026-10-18 08:29:39"
-        ]
+        ],
+        "check_in_count": 1
     }
 ]

@@ -24,8 +24,8 @@ if (isset($_GET['rm_checkin'])) {
       remove_guest_by_id($id, $checkin_guests);
       delete_data_record(DATA_DIR . '/checkin.json', $id);
     } else {
-      $updates_numeros = array_map(function($update) { return explode(';', $update)[0];  }, $data['updates']);
-      $data['numero'] = array_sum($updates_numeros);
+      $check_in_updates = array_map(function($update) { return explode(';', $update)[0];  }, $data['updates']);
+      $data['check_in_count'] = array_sum($check_in_updates);
 
       replace_guest_by_id($id, $data, $checkin_guests);
     }
@@ -47,7 +47,7 @@ if (isset($_GET['rm_checkin'])) {
       $update_label = $update[0] . ' '
         . (($update[0] == 1) ? 'person' : 'people');
 
-      echo '<script>if(confirm("Are you sure you want to delete this check-in for ' . htmlspecialchars($guest['nome'], ENT_QUOTES, 'UTF-8') . '? ' .
+      echo '<script>if(confirm("Are you sure you want to delete this check-in for ' . htmlspecialchars($guest['name'], ENT_QUOTES, 'UTF-8') . '? ' .
         '\n' . $update_label . ' - ' . date('d/m/Y H:i:s', strtotime($update[1])) . '"))'
         . 'window.location.href = "?rm_checkin&id=' . rawurlencode($id) . '&update=' . (int)$update_index . '&really_remove&csrf_token=' . rawurlencode($_GET['csrf_token']) . '"; '
         . 'else window.location.href = "?"; </script>';

@@ -222,6 +222,11 @@ function get_profile_by_email($email)
 
 function refresh_session_profile()
 {
+    static $checked_this_request = false;
+    static $valid_this_request = false;
+    if ($checked_this_request) return $valid_this_request;
+    $checked_this_request = true;
+
     if (DEMO_MODE) {
         if (empty($_SESSION['user']['id'])) return false;
         foreach (get_demo_accounts() as $account) {
@@ -235,7 +240,7 @@ function refresh_session_profile()
                     'role' => $account['role'],
                     'login_time' => $_SESSION['user']['login_time'] ?? date('Y-m-d H:i:s'),
                 ];
-                return true;
+                return $valid_this_request = true;
             }
         }
         session_unset();
@@ -277,7 +282,7 @@ function refresh_session_profile()
     $_SESSION['user']['display_name'] = $profile['display_name'];
     $_SESSION['user']['label'] = $profile['label'];
     $_SESSION['user']['role'] = $profile['role'];
-    return true;
+    return $valid_this_request = true;
 }
 
 function is_admin()
@@ -334,7 +339,7 @@ function send_rsvp_confirmation($guest)
 
     return supabase_request('POST', '/functions/v1/rsvp-confirmation', [
         'email' => $guest['email'],
-        'name' => $guest['nome'],
+        'name' => $guest['name'],
         'attending' => (bool)$guest['attending'],
         'maps_url' => EVENT_MAPS_URL,
         'qr_code_base64' => base64_encode($qr_png),
@@ -357,7 +362,7 @@ function send_guest_uninvitation($guest)
     return supabase_request('POST', '/functions/v1/rsvp-confirmation', [
         'event' => 'guest_uninvited',
         'email' => $guest['email'],
-        'name' => $guest['nome'] ?? $guest['name'] ?? 'Guest',
+        'name' => $guest['name'] ?? 'Guest',
     ], 'service', null, ['x-rsvp-secret' => RSVP_EMAIL_FUNCTION_SECRET]);
 }
 
@@ -431,7 +436,9 @@ function get_data_from_dir($dir)
         if (!file_exists($dir)) return [];
         $data_json = file_get_contents($dir);
         $records = json_decode($data_json, true);
-        return is_array($records) ? $records : [];
+        if (!is_array($records)) return [];
+        $is_checkins = basename($dir) === 'checkin.json';
+        return array_map($is_checkins ? 'normalize_checkin_record' : 'normalize_guest_record', $records);
     }
 
     $table = (basename($dir) === 'checkin.json') ? 'checkins' : 'guests';
@@ -440,26 +447,44 @@ function get_data_from_dir($dir)
     if (!is_array($records)) return null;
 
     if ($table === 'guests') {
-        return array_map(function ($record) {
-            $record['nome'] = $record['name'] ?? '';
-            $record['numero'] = 1;
-            $record['telefone'] = $record['phone'] ?? '';
-            $record['enviado'] = $record['invitation_sent'] ?? false;
-            unset($record['name'], $record['phone'], $record['invitation_sent']);
-            return $record;
-        }, $records);
+        return array_map('normalize_guest_record', $records);
     }
 
-    return array_map(function ($record) {
-        $record['numero'] = $record['check_in_count'] ?? 0;
-        unset($record['check_in_count']);
-        return $record;
-    }, $records);
+    return array_map('normalize_checkin_record', $records);
+}
+
+function get_guest_record_by_id($id)
+{
+    if (DEMO_MODE) {
+        $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
+        return get_guest_by_id($id, $guests);
+    }
+
+    $records = supabase_request('GET', '/rest/v1/guests?select=*&id=eq.' . rawurlencode((string)$id) . '&limit=1');
+    if (!is_array($records) || !isset($records[0])) return false;
+    return normalize_guest_record($records[0]);
+}
+
+function normalize_guest_record($record)
+{
+    $record['name'] = $record['name'] ?? '';
+    $record['group_size'] = $record['group_size'] ?? 1;
+    $record['phone'] = $record['phone'] ?? '';
+    $record['invitation_sent'] = $record['invitation_sent'] ?? false;
+    return $record;
+}
+
+function normalize_checkin_record($record)
+{
+    $record['check_in_count'] = $record['check_in_count'] ?? 0;
+    return $record;
 }
 
 function save_data_to_dir($dir, $records)
 {
     if (DEMO_MODE) {
+        $is_checkins = basename($dir) === 'checkin.json';
+        $records = array_map($is_checkins ? 'normalize_checkin_record' : 'normalize_guest_record', $records);
         return file_put_contents($dir, json_encode(array_values($records), JSON_PRETTY_PRINT), LOCK_EX) !== false;
     }
 
@@ -469,18 +494,18 @@ function save_data_to_dir($dir, $records)
         if ($table === 'guests') {
             $record = [
                 'id' => $record['id'],
-                'name' => $record['nome'] ?? $record['name'] ?? '',
+                'name' => $record['name'] ?? '',
                 'email' => $record['email'] ?? '',
-                'phone' => $record['telefone'] ?? $record['phone'] ?? '',
+                'phone' => $record['phone'] ?? '',
                 'label' => $record['label'] ?? 'VIP',
                 'attending' => isset($record['attending']) ? (bool)$record['attending'] : true,
-                'invitation_sent' => !empty($record['enviado'] ?? $record['invitation_sent'] ?? false),
+                'invitation_sent' => !empty($record['invitation_sent'] ?? false),
                 'auth_user_id' => $record['auth_user_id'] ?? null,
             ];
         } else {
             $record = [
                 'id' => $record['id'],
-                'check_in_count' => (int)($record['numero'] ?? $record['check_in_count'] ?? 0),
+                'check_in_count' => (int)($record['check_in_count'] ?? 0),
                 'updates' => $record['updates'] ?? [],
             ];
         }
@@ -567,9 +592,9 @@ function find_guest_duplicate($name, $email, $phone, $stored_guests, $exclude_id
             continue;
         }
 
-        $saved_name = $normalize_name($guest['nome'] ?? $guest['name'] ?? '');
+        $saved_name = $normalize_name($guest['name'] ?? '');
         $saved_email = strtolower(trim((string)($guest['email'] ?? '')));
-        $saved_phone = preg_replace('/\D+/', '', (string)($guest['telefone'] ?? $guest['phone'] ?? ''));
+        $saved_phone = preg_replace('/\D+/', '', (string)($guest['phone'] ?? ''));
 
         if (($normalized_email !== '' && $saved_email === $normalized_email)
             || ($normalized_name !== '' && $saved_name === $normalized_name)
@@ -609,12 +634,12 @@ function filter_guests_that_checked_in($bool, $stored_guests, $checkin_guests)
     return $filtered_guests;
 }
 
-function order_guests_by_nome($stored_guests, $order = 'AZ')
+function order_guests_by_name($stored_guests, $order = 'AZ')
 {
     $direction = ($order === 'ZA') ? -1 : 1;
     usort($stored_guests, function ($a, $b) use ($direction) {
-        $name_a = trim((string)($a['nome'] ?? $a['name'] ?? ''));
-        $name_b = trim((string)($b['nome'] ?? $b['name'] ?? ''));
+        $name_a = trim((string)($a['name'] ?? ''));
+        $name_b = trim((string)($b['name'] ?? ''));
         return $direction * strnatcasecmp($name_a, $name_b);
     });
 

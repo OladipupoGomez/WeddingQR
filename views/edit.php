@@ -13,10 +13,10 @@ if (isset($_GET['edit'])) {
     $status = false;
     $message = 'No guest was found.';
   } else {
-    $nome = $guest['nome'];
+    $name = $guest['name'];
     $email = $guest['email'];
-    $telefone = $guest['telefone'];
-    $numero = $guest['numero'];
+    $phone = $guest['phone'];
+    $group_size = $guest['group_size'];
   }
 
 } else {
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit('Invalid security token. Refresh the page and try again.');
   }
 
-  $id = md5($_POST['nome']);
+  $id = md5($_POST['name']);
 
   $data = array(
     'id' => $id,
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   } else {
     $existing_guest = get_guest_by_id($edit_id, $guests);
     $data['id'] = $edit_id;
-    $data['enviado'] = $existing_guest['enviado'] ?? false;
+    $data['invitation_sent'] = $existing_guest['invitation_sent'] ?? false;
     $data['auth_user_id'] = $existing_guest['auth_user_id'] ?? null;
     replace_guest_by_id($edit_id, $data, $guests);
     
@@ -73,20 +73,20 @@ if ($message != '') {
   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
   <h1>Edit guest</h1>
   <div class="mb-3">
-    <label for="nome" class="form-label">Nome</label>
-    <input type="text" class="form-control" id="nome" name="nome" placeholder="Person or group" value="<?= $_POST['nome'] ?? $nome ?? ''; ?>" required>
+    <label for="name" class="form-label">Name</label>
+    <input type="text" class="form-control" id="name" name="name" placeholder="Person or group" value="<?= $_POST['name'] ?? $name ?? ''; ?>" required>
   </div>
   <div class="mb-3">
     <label for="email" class="form-label">Email</label>
-    <input type="email" class="form-control" id="email" name="email" placeholder="email@exemplo.com" value="<?= $_POST['email'] ?? $email ?? ''; ?>">
+    <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" value="<?= $_POST['email'] ?? $email ?? ''; ?>">
   </div>
   <div class="mb-3">
-    <label for="telefone" class="form-label">Phone</label>
-    <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="555 555 5555" value="<?= $_POST['telefone'] ?? $telefone ?? ''; ?>">
+    <label for="phone" class="form-label">Phone</label>
+    <input type="tel" class="form-control" id="phone" name="phone" placeholder="555 555 5555" value="<?= $_POST['phone'] ?? $phone ?? ''; ?>">
   </div>
   <div class="mb-3">
-    <label for="numero" class="form-label">Number of people in group</label>
-    <input type="number" class="form-control" id="numero" name="numero" required value="<?= $_POST['numero'] ?? $numero ?? ''; ?>">
+    <label for="group_size" class="form-label">Number of people in group</label>
+    <input type="number" class="form-control" id="group_size" name="group_size" required value="<?= $_POST['group_size'] ?? $group_size ?? ''; ?>">
   </div>
   <div class="d-flex align-items-center">
     <button type="submit" class="btn btn-primary">Save changes</button>
