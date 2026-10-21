@@ -12,7 +12,11 @@ if (str_starts_with($request_path, '/assets/')) {
         exit('Not found.');
     }
 
-    header('Content-Type: ' . (mime_content_type($asset_path) ?: 'application/octet-stream'));
+    $asset_mime_type = mime_content_type($asset_path) ?: 'application/octet-stream';
+    if (strtolower(pathinfo($asset_path, PATHINFO_EXTENSION)) === 'js') {
+        $asset_mime_type = 'application/javascript; charset=utf-8';
+    }
+    header('Content-Type: ' . $asset_mime_type);
     header('Cache-Control: public, max-age=3600');
     readfile($asset_path);
     exit;
