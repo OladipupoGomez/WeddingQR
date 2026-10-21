@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
   <main class="rsvp-page">
     <header class="rsvp-header">
-      <a class="wordmark" href="/" aria-label="ADE & OLA home">ADE <span>&amp;</span> OLA</a>
+      <a class="wordmark" href="/" aria-label="ADE & OLA home"><img class="rsvp-logo" src="/assets/adeola-2026-logo.png" alt="Ade and Ola wedding logo"></a>
       <a href="/">Return to invitation</a>
     </header>
     <div class="rsvp-layout">

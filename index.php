@@ -16,7 +16,7 @@ require_once __DIR__ . '/bootstrap.php';
 </head>
 <body>
   <header class="site-header">
-    <a class="wordmark" href="#top" aria-label="ADE & OLA home">ADE <span>&amp;</span> OLA</a>
+    <a class="wordmark" href="#top" aria-label="ADE & OLA home"><img class="site-logo" src="/assets/adeola-2026-logo.png" alt="Ade and Ola wedding logo"></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation">
       <span></span><span></span>
     </button>

@@ -19,7 +19,7 @@ if (!is_admin()) {
   </head>
   <body class="login">
     <main class="container py-5 col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
-      <div class="brand fs-2 fw-light lh-1">ADE &amp; OLA</div>
+      <img class="admin-logo" src="/assets/adeola-2026-logo.png" alt="Ade and Ola wedding logo">
       <h1 class="mt-4">Admin access required</h1>
       <p>This account is signed in, but it does not have the administrator role. Sign out and log in with your admin account.</p>
       <a class="btn btn-primary" href="/login.php?logout">Sign out</a>
@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
   <header class="py-3 border-bottom">
     <div class="container d-flex align-items-center justify-content-between">
       <a href="/admin" class="home-link d-flex me-auto">
-        <div class="brand fs-2 fw-light lh-1 me-0 me-md-1">ADE &amp; OLA</div>
+        <img class="admin-logo me-0 me-md-1" src="/assets/adeola-2026-logo.png" alt="Ade and Ola wedding logo">
         <div class="tagline ms-0 ms-md-3 mt-0 mt-md-2">The wedding of the century.</div>
       </a>
       <a href="/?" class="me-3" aria-label="View wedding website" title="Wedding website"><span class="bi-house"></span></a>
