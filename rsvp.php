@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Please reply for yourself. You can update your response later using the same email address.</p>
       </section>
       <section class="rsvp-form-wrap" aria-labelledby="rsvp-title">
-        <h2 id="rsvp-title">Kindly RSVP</h2>
+        <h2 id="rsvp-title"><?= isset($_GET['sent']) ? 'Thank you for your Response' : 'Kindly RSVP'; ?></h2>
         <?php if ($message !== '') : ?>
           <div class="rsvp-notice <?= $message_type === 'error' ? 'error' : ''; ?>" role="status"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></div>
         <?php endif; ?>
