@@ -477,6 +477,38 @@ function get_checkin_record_by_id($id)
     return normalize_checkin_record($records[0]);
 }
 
+function get_guest_with_checkin_by_id($id)
+{
+    if (DEMO_MODE) {
+        $guest = get_guest_record_by_id($id);
+        if (!$guest) return false;
+        return [
+            'guest' => $guest,
+            'already_checked_in' => (bool)get_checkin_record_by_id($id),
+        ];
+    }
+
+    $records = supabase_request(
+        'GET',
+        '/rest/v1/guests?select=id,name,email,phone,label,checkin:checkins(id)&id=eq.' . rawurlencode((string)$id) . '&limit=1'
+    );
+    if (is_array($records)) {
+        if (!isset($records[0])) return false;
+        $guest = normalize_guest_record($records[0]);
+        $checkin = $records[0]['checkin'] ?? null;
+        $checked_in = is_array($checkin) && (isset($checkin['id']) || count($checkin) > 0);
+        return ['guest' => $guest, 'already_checked_in' => $checked_in];
+    }
+
+    // Fall back to independent reads if PostgREST cannot resolve the embedding.
+    $guest = get_guest_record_by_id($id);
+    if (!$guest) return false;
+    return [
+        'guest' => $guest,
+        'already_checked_in' => (bool)get_checkin_record_by_id($id),
+    ];
+}
+
 function create_checkin_record($id, $group_size)
 {
     $timestamp = date('Y-m-d H:i:s');
@@ -504,64 +536,6 @@ function create_checkin_record($id, $group_size)
     );
     if ($created === false) return false;
     return count($created) > 0 ? true : 'exists';
-}
-
-function create_checkin_record_with_guest($id)
-{
-    if (DEMO_MODE) {
-        $guest = get_guest_record_by_id($id);
-        if (!$guest) return ['status' => 'not_found'];
-
-        $created = create_checkin_record($id, max(1, (int)($guest['group_size'] ?? 1)));
-        if ($created === true) return ['status' => 'checked_in', 'guest' => $guest];
-        if ($created === 'exists') return ['status' => 'already_checked_in', 'guest' => $guest];
-        return ['status' => 'error', 'message' => 'Could not save the check-in.'];
-    }
-
-    $timestamp = date('Y-m-d H:i:s');
-    $count = 1;
-    $created = supabase_request(
-        'POST',
-        '/rest/v1/checkins?on_conflict=id&select=id,guest:guests(name,email,phone,label)',
-        [
-            'id' => (string)$id,
-            'check_in_count' => $count,
-            'updates' => [$count . ';' . $timestamp],
-        ],
-        'service',
-        null,
-        [],
-        'resolution=ignore-duplicates,return=representation'
-    );
-
-    if (is_array($created) && count($created) > 0) {
-        $guest = $created[0]['guest'] ?? null;
-        if (is_array($guest)) {
-            return ['status' => 'checked_in', 'guest' => normalize_guest_record($guest)];
-        }
-
-        // Keep check-in working if the REST schema cache cannot embed the guest row.
-        $guest = get_guest_record_by_id($id);
-        if ($guest) return ['status' => 'checked_in', 'guest' => $guest];
-        return ['status' => 'error', 'message' => 'Check-in was saved, but guest details could not be loaded.'];
-    }
-
-    if (is_array($created)) {
-        $guest = get_guest_record_by_id($id);
-        return $guest
-            ? ['status' => 'already_checked_in', 'guest' => $guest]
-            : ['status' => 'not_found'];
-    }
-
-    $request_error = supabase_last_error();
-    $guest = get_guest_record_by_id($id);
-    if (!$guest) return ['status' => 'not_found'];
-
-    // Retry through the established insert path in case embedding is unavailable.
-    $retry = create_checkin_record($id, max(1, (int)($guest['group_size'] ?? 1)));
-    if ($retry === true) return ['status' => 'checked_in', 'guest' => $guest];
-    if ($retry === 'exists') return ['status' => 'already_checked_in', 'guest' => $guest];
-    return ['status' => 'error', 'message' => $request_error ?: (supabase_last_error() ?: 'Could not save the check-in.')];
 }
 
 function normalize_guest_record($record)
