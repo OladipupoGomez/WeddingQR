@@ -89,24 +89,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
   }
 
   $guest_id = trim($_POST['guest_id'] ?? '');
-  $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-  $guest = get_guest_by_id($guest_id, $guests);
-  $checkins = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
-  $checkin = get_guest_by_id($guest_id, $checkins);
+  $guest = get_guest_record_by_id($guest_id);
 
   if (!$guest) {
     $checkin_notice = 'Guest not found.';
-  } elseif ($checkin) {
-    $checkin_notice = $guest['name'] . ' is already checked in.';
   } else {
     $guest_count = max(1, (int)($guest['group_size'] ?? 1));
-    $checkins[] = [
-      'id' => $guest_id,
-      'check_in_count' => $guest_count,
-      'updates' => [$guest_count . ';' . date('Y-m-d H:i:s')],
-    ];
-    if (save_data_to_dir(DATA_DIR . '/checkin.json', $checkins)) {
+    $result = create_checkin_record($guest_id, $guest_count);
+    if ($result === true) {
       $checkin_notice = 'Checked in ' . $guest['name'] . '.';
+    } elseif ($result === 'exists') {
+      $checkin_notice = $guest['name'] . ' is already checked in.';
     } else {
       $checkin_notice = 'Could not update check-in status: ' . (supabase_last_error() ?: 'storage request failed.');
     }

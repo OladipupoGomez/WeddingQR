@@ -68,7 +68,7 @@ function supabase_is_configured()
     return !DEMO_MODE && SUPABASE_URL !== '' && SUPABASE_ANON_KEY !== '' && SUPABASE_SERVICE_ROLE_KEY !== '';
 }
 
-function supabase_request($method, $path, $body = null, $key_type = 'service', $user_token = null, $extra_headers = [])
+function supabase_request($method, $path, $body = null, $key_type = 'service', $user_token = null, $extra_headers = [], $rest_prefer = null)
 {
     $key = ($key_type === 'anon') ? SUPABASE_ANON_KEY : SUPABASE_SERVICE_ROLE_KEY;
     if (!supabase_is_configured() || !function_exists('curl_init')) {
@@ -105,7 +105,7 @@ function supabase_request($method, $path, $body = null, $key_type = 'service', $
     ]);
     if ($body !== null) {
         if ($method === 'POST' && strpos($path, '/rest/v1/') === 0) {
-            $headers[] = 'Prefer: resolution=merge-duplicates,return=minimal';
+            $headers[] = 'Prefer: ' . ($rest_prefer ?? 'resolution=merge-duplicates,return=minimal');
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         }
         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($body));
@@ -463,6 +463,47 @@ function get_guest_record_by_id($id)
     $records = supabase_request('GET', '/rest/v1/guests?select=*&id=eq.' . rawurlencode((string)$id) . '&limit=1');
     if (!is_array($records) || !isset($records[0])) return false;
     return normalize_guest_record($records[0]);
+}
+
+function get_checkin_record_by_id($id)
+{
+    if (DEMO_MODE) {
+        $checkins = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
+        return get_guest_by_id($id, $checkins);
+    }
+
+    $records = supabase_request('GET', '/rest/v1/checkins?select=*&id=eq.' . rawurlencode((string)$id) . '&limit=1');
+    if (!is_array($records) || !isset($records[0])) return false;
+    return normalize_checkin_record($records[0]);
+}
+
+function create_checkin_record($id, $group_size)
+{
+    $timestamp = date('Y-m-d H:i:s');
+    $record = [
+        'id' => (string)$id,
+        'check_in_count' => max(1, (int)$group_size),
+        'updates' => [max(1, (int)$group_size) . ';' . $timestamp],
+    ];
+
+    if (DEMO_MODE) {
+        $checkins = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
+        if (get_guest_by_id($id, $checkins)) return 'exists';
+        $checkins[] = $record;
+        return save_data_to_dir(DATA_DIR . '/checkin.json', $checkins);
+    }
+
+    $created = supabase_request(
+        'POST',
+        '/rest/v1/checkins?on_conflict=id',
+        $record,
+        'service',
+        null,
+        [],
+        'resolution=ignore-duplicates,return=representation'
+    );
+    if ($created === false) return false;
+    return count($created) > 0 ? true : 'exists';
 }
 
 function normalize_guest_record($record)

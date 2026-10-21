@@ -12,9 +12,7 @@ if (isset($_GET['checkin'])) {
   if (!is_valid_md5($checkin_id))
     $checkin_id = md5($checkin_id);
 
-  $guests = get_data_from_dir(DATA_DIR . '/guests.json') ?? [];
-
-  if (!$guest = get_guest_by_id($checkin_id, $guests)) {
+  if (!$guest = get_guest_record_by_id($checkin_id)) {
     http_response_code(410);
     $status = false;
     $message = 'This guest QR code is no longer active.';
@@ -25,8 +23,7 @@ if (isset($_GET['checkin'])) {
     $phone = $guest['phone'] ?? '';
     $guest_category = $guest['label'] ?? '';
     $attending = $guest['attending'] ?? true;
-    $checked_guests = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
-    $already_checked_in = (bool)get_guest_by_id($checkin_id, $checked_guests);
+    $already_checked_in = (bool)get_checkin_record_by_id($checkin_id);
   }
 } else {
   header('Location: /');
@@ -46,27 +43,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   $id = $guest['id'];
-  $checked_guests = get_data_from_dir(DATA_DIR . '/checkin.json') ?? [];
-  if (get_guest_by_id($id, $checked_guests)) {
+  $checkin_result = create_checkin_record($id, max(1, (int)($guest['group_size'] ?? 1)));
+
+  if ($checkin_result === true) {
+    $already_checked_in = true;
+    $status = true;
+    $message = 'Check-in completed for ' . $guest_name . '.';
+  } elseif ($checkin_result === 'exists') {
     $already_checked_in = true;
     $status = false;
     $message = 'This guest has already been checked in.';
   } else {
-    $data = [
-      'id' => $id,
-      'check_in_count' => max(1, (int)($guest['group_size'] ?? 1)),
-      'updates' => [max(1, (int)($guest['group_size'] ?? 1)) . ';' . date('Y-m-d H:i:s')],
-    ];
-    $checked_guests[] = $data;
-
-    if (save_data_to_dir(DATA_DIR . '/checkin.json', $checked_guests)) {
-      $already_checked_in = true;
-      $status = true;
-      $message = 'Check-in completed for ' . $guest_name . '.';
-    } else {
-      $status = false;
-      $message = 'Check-in could not be saved: ' . (supabase_last_error() ?: 'storage request failed.');
-    }
+    $status = false;
+    $message = 'Check-in could not be saved: ' . (supabase_last_error() ?: 'storage request failed.');
   }
 }
 
