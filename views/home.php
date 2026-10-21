@@ -71,12 +71,13 @@ if ($filter_category !== '') {
 ?>
 
 <form class="home-heading d-flex flex-column flex-sm-row align-items-center justify-content-between mb-3">
-  <div class="title">
-    <small><a href="/admin">Refresh</a></small>
-    <h2>All guests</h2>
+  <div class="title d-flex align-items-center justify-content-between gap-3">
+    <h2 class="mb-0">All guests</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin" title="Refresh guest list">
+      <span class="bi-arrow-clockwise me-1" aria-hidden="true"></span>Refresh
+    </a>
   </div>
   <div class="search d-flex align-items-center">
-    <a class="bi-arrow-clockwise" href="/admin" title="Refresh"></a>
     <input type="hidden" name="order" value="<?= htmlspecialchars($order, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="filter_checkin" value="<?= htmlspecialchars($filter_checkin, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="filter_category" value="<?= htmlspecialchars($filter_category, ENT_QUOTES, 'UTF-8'); ?>">

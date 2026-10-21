@@ -454,9 +454,20 @@ footer a:hover {
   gap: .5rem;
 }
 
+.home-heading .title {
+  flex: 1 1 auto;
+}
+
+.home-heading .search {
+  flex: 0 1 340px;
+  width: 100%;
+}
+
 .search input {
-  width: 250px;
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
+  padding-right: 2.5rem;
 }
 
 .search button {
@@ -502,6 +513,54 @@ footer a:hover {
 }
 
 @media all and (max-width: 576px) {
+
+  header.py-3 {
+    padding-top: .5rem !important;
+    padding-bottom: .5rem !important;
+  }
+
+  header .container {
+    gap: .4rem;
+  }
+
+  header .home-link {
+    flex-flow: row;
+    align-items: center;
+  }
+
+  header .home-link .admin-logo {
+    width: 84px;
+    height: 84px;
+  }
+
+  header .home-link .tagline {
+    display: none;
+  }
+
+  header .container > a {
+    margin-right: .4rem !important;
+    white-space: nowrap;
+    font-size: .9rem;
+  }
+
+  header .container > a:last-child {
+    margin-right: 0 !important;
+  }
+
+  .home-heading {
+    align-items: stretch !important;
+    gap: .75rem;
+  }
+
+  .home-heading .title,
+  .home-heading .search {
+    width: 100%;
+    max-width: none;
+  }
+
+  .home-heading .title h2 {
+    font-size: 1.6rem;
+  }
 
   .table td.checkin-status {
     width: 110px;
