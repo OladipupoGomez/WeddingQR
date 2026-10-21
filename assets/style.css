@@ -556,6 +556,7 @@ footer a:hover {
   .home-heading .search {
     width: 100%;
     max-width: none;
+    flex: none;
   }
 
   .home-heading .title h2 {
