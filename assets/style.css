@@ -35,14 +35,14 @@ body {
 
 .admin-logo {
   display: block;
-  width: 112px;
-  height: 112px;
+  width: 136px;
+  height: 136px;
   object-fit: contain;
 }
 
 .login .admin-logo {
-  width: 88px;
-  height: 88px;
+  width: 136px;
+  height: 136px;
 }
 
 .login-page-logo {
