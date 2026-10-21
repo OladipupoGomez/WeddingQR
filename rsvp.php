@@ -9,7 +9,7 @@ if (isset($_GET['sent'])) {
     ? 'Thank you. Your RSVP is saved for the demo. Email confirmations are not sent in demo mode.'
     : (isset($_GET['email_error'])
       ? 'Your RSVP was saved, but its email confirmation could not be sent. Please contact the wedding hosts.'
-      : 'Thank you. Your RSVP and email confirmation have been received.');
+      : "Thank you! Your RSVP is confirmed. We’ve sent a confirmation to your email address (please check your spam folder if you don't see it shortly). See you on November 14th!");
   $message_type = 'success';
 }
 
