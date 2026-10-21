@@ -9,6 +9,7 @@ require_once __DIR__ . '/bootstrap.php';
   <meta name="theme-color" content="#28332b">
   <meta name="description" content="Join ADE &amp; OLA for the wedding of the century. Please RSVP for the celebration.">
   <title>ADE &amp; OLA | The Wedding of the Century</title>
+  <link rel="icon" type="image/png" href="/assets/adeola-2026-logo.png?v=2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
