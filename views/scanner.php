@@ -19,6 +19,7 @@
     <span id="scanner-loading">Preparing rear camera…</span>
     <button id="scanner-retry" type="button" class="btn btn-outline-primary btn-sm ms-2" hidden>Try camera again</button>
   </div>
+  <button id="camera-change-method" type="button" class="btn btn-link btn-sm">Choose another option</button>
 </div>
 <div id="scanner-upload-panel" class="scanner-upload" hidden>
   <label class="btn btn-outline-primary" for="qr-image-upload">
@@ -26,6 +27,7 @@
   </label>
   <input id="qr-image-upload" type="file" accept="image/*" class="visually-hidden">
   <div id="qr-upload-status" class="small text-muted mt-2" role="status" aria-live="polite"></div>
+  <button id="upload-change-method" type="button" class="btn btn-link btn-sm mt-2">Choose another option</button>
 </div>
 <div id="file-reader" hidden></div>
 <div id="scan-result" class="scan-result alert d-none mt-3" role="status" aria-live="polite"></div>
@@ -41,6 +43,8 @@
     const uploadPanel = document.getElementById('scanner-upload-panel');
     const chooseCameraButton = document.getElementById('choose-camera');
     const chooseUploadButton = document.getElementById('choose-upload');
+    const cameraChangeMethodButton = document.getElementById('camera-change-method');
+    const uploadChangeMethodButton = document.getElementById('upload-change-method');
     const fileInput = document.getElementById('qr-image-upload');
     const fileStatus = document.getElementById('qr-upload-status');
     const resultBox = document.getElementById('scan-result');
@@ -51,6 +55,7 @@
     let starting = false;
     let scannerLibraryReady = false;
     let cameraChosen = false;
+    let cameraStartId = 0;
     let scanMode = '';
     let previousCode = '';
     let previousCodeAt = 0;
@@ -259,6 +264,7 @@
       }
 
       starting = true;
+      const startId = ++cameraStartId;
       retryButton.hidden = true;
       spinner.hidden = false;
       loading.textContent = 'Starting rear camera… Allow camera access when prompted.';
@@ -282,6 +288,14 @@
           onCameraScanSuccess,
           () => {}
         );
+        if (!cameraChosen || startId !== cameraStartId) {
+          try {
+            await scanner.stop();
+          } catch (error) {
+            // Scanner may already have stopped.
+          }
+          return;
+        }
         spinner.hidden = true;
         loading.textContent = 'Camera ready. Hold a guest QR code in the frame.';
       } catch (error) {
@@ -290,7 +304,28 @@
         retryButton.hidden = false;
       } finally {
         starting = false;
+        if (cameraChosen && startId !== cameraStartId) startScanner();
       }
+    }
+
+    async function showMethodChoice() {
+      cameraChosen = false;
+      cameraStartId += 1;
+      scanMode = '';
+      retryButton.hidden = true;
+      spinner.hidden = true;
+      resultBox.className = 'scan-result alert d-none mt-3';
+      fileStatus.textContent = '';
+      if (scanner && !starting) {
+        try {
+          await scanner.stop();
+        } catch (error) {
+          // Scanner may not have started or may already be stopped.
+        }
+      }
+      cameraPanel.hidden = true;
+      uploadPanel.hidden = true;
+      methodChoice.hidden = false;
     }
 
     retryButton.addEventListener('click', startScanner);
@@ -309,6 +344,8 @@
       uploadPanel.hidden = false;
       fileInput.click();
     });
+    cameraChangeMethodButton.addEventListener('click', showMethodChoice);
+    uploadChangeMethodButton.addEventListener('click', showMethodChoice);
     window.startGuestScanner = () => {
       scannerLibraryReady = true;
       if (cameraChosen) startScanner();

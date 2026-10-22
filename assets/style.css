@@ -236,6 +236,10 @@ header .home-link .brand {
   cursor: pointer;
 }
 
+.guest-action-label {
+  display: none;
+}
+
 .table td.actions a:nth-child(1) {
   color: var(--bs-danger);
 }
@@ -513,8 +517,40 @@ footer a:hover {
 @media all and (max-width: 768px) {
   .table td.actions .wrapper {
     justify-content: center;
+    align-items: stretch;
     flex-flow: column;
     gap: .25rem;
+  }
+
+  .table td.actions a.guest-action {
+    display: flex;
+    width: 100%;
+    min-height: 36px;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    margin: 0;
+    padding: .35rem .4rem;
+    border: 1px solid;
+    border-radius: .375rem;
+    font-size: .75rem;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .table td.actions a.guest-action-delete {
+    color: var(--bs-danger);
+    border-color: var(--bs-danger);
+  }
+
+  .table td.actions a.guest-action-qr {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+  }
+
+  .guest-action-label {
+    display: inline;
   }
 
   .table td.checkin-status>span {
@@ -595,6 +631,6 @@ footer a:hover {
   }
 
   .table td.actions {
-    width: 40px;
+    width: 125px;
   }
 }

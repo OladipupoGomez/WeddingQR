@@ -198,8 +198,14 @@ if ($filter_category !== '') {
           </td>
           <td class="actions">
             <div class="wrapper">
-              <a href="?remove=<?= rawurlencode($id); ?>" class="bi-trash3" title="Remove"></a>
-              <a href="/get_qr.php?id=<?= $id; ?>" download class="bi-qr-code" title="Download QR code"></a>
+              <a href="?remove=<?= rawurlencode($id); ?>" class="guest-action guest-action-delete" title="Remove guest">
+                <span class="bi-trash3 guest-action-icon" aria-hidden="true"></span>
+                <span class="guest-action-label">Delete guest</span>
+              </a>
+              <a href="/get_qr.php?id=<?= rawurlencode($id); ?>" download class="guest-action guest-action-qr" title="Download QR code">
+                <span class="bi-qr-code guest-action-icon" aria-hidden="true"></span>
+                <span class="guest-action-label">Download QR</span>
+              </a>
             </div>
           </td>
         </tr>
