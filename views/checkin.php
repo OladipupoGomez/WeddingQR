@@ -1,9 +1,10 @@
 <?php
 $status = null;
 $message = '';
-$redirect = true;
 $guest = false;
 $already_checked_in = false;
+$checkin_notice = $_SESSION['guest_checkin_notice'] ?? null;
+unset($_SESSION['guest_checkin_notice']);
 
 if (isset($_GET['checkin'])) {
 
@@ -24,6 +25,11 @@ if (isset($_GET['checkin'])) {
     $guest_category = $guest['label'] ?? '';
     $attending = $guest['attending'] ?? true;
     $already_checked_in = (bool)get_checkin_record_by_id($checkin_id);
+
+    if (is_array($checkin_notice) && ($checkin_notice['id'] ?? '') === $checkin_id) {
+      $status = (bool)($checkin_notice['success'] ?? false);
+      $message = (string)($checkin_notice['message'] ?? '');
+    }
   }
 } else {
   header('Location: /');
@@ -37,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit('Invalid security token. Refresh the page and try again.');
   }
 
-  if (!$guest || $status === false) {
+  if (!$guest) {
     http_response_code(404);
     exit('Guest not found. Scan a valid guest QR code and try again.');
   }
@@ -57,17 +63,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = false;
     $message = 'Check-in could not be saved: ' . (supabase_last_error() ?: 'storage request failed.');
   }
-}
 
-if ($message != '') {
-  $status_label = ($status) ? 'SUCCESS' : 'ERROR';
-  echo '<script>alert("' . $status_label . '\n' . $message . '");';
-  echo ($redirect) ? 'window.location.href = "?";</script>' : '</script>';
+  $_SESSION['guest_checkin_notice'] = [
+    'id' => $checkin_id,
+    'success' => $status === true,
+    'message' => $message,
+  ];
+  header('Location: /admin?checkin=' . rawurlencode($checkin_id), true, 303);
+  exit;
 }
-
 
 ?>
 <a href="?" class="btn btn-outline-primary mb-3 small">Back to home</a>
+<?php if ($message !== '') : ?>
+  <div class="alert <?= $status ? 'alert-success' : 'alert-danger'; ?>" role="status">
+    <?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?>
+  </div>
+<?php endif; ?>
 <?php if ($guest) : ?>
 <form action="" method="post" class="checkin">
   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
