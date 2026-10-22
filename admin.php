@@ -79,7 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['really_remove'])) {
   exit;
 }
 
-$checkin_notice = '';
+$checkin_notice = $_SESSION['admin_checkin_notice'] ?? '';
+unset($_SESSION['admin_checkin_notice']);
 $removal_notice = $_SESSION['admin_removal_notice'] ?? null;
 unset($_SESSION['admin_removal_notice']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['scan_guest']) || isset($_POST['ajax_checkin']))) {
@@ -155,6 +156,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
       $checkin_notice = 'Could not update check-in status: ' . (supabase_last_error() ?: 'storage request failed.');
     }
   }
+
+  $_SESSION['admin_checkin_notice'] = $checkin_notice;
+  header('Location: /admin', true, 303);
+  exit;
 }
 ?>
 
