@@ -158,7 +158,7 @@ if ($filter_category !== '') {
           <td class="phone"><?= htmlspecialchars($phone ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
           <td class="checkin">
             <?php if (!$checkin) : ?>
-              <form method="post" action="/admin" class="checkin-toggle-form">
+              <form method="post" action="/admin" class="checkin-toggle-form" data-confirm="Check in <?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>?">
                 <input type="hidden" name="check_in_guest" value="1">
                 <input type="hidden" name="guest_id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
@@ -228,3 +228,22 @@ if ($filter_category !== '') {
 
 </table>
 </div>
+
+<script>
+  document.querySelectorAll('.checkin-toggle-form').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      if (!window.confirm(form.dataset.confirm || 'Confirm guest check-in?')) {
+        event.preventDefault();
+      }
+    });
+  });
+
+  document.querySelectorAll('.guest-action').forEach((action) => {
+    action.addEventListener('click', () => {
+      document.querySelectorAll('.guest-action.is-clicked').forEach((clickedAction) => {
+        clickedAction.classList.remove('is-clicked');
+      });
+      action.classList.add('is-clicked');
+    });
+  });
+</script>

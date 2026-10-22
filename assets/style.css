@@ -549,6 +549,24 @@ footer a:hover {
     border-color: var(--bs-primary);
   }
 
+  .table td.actions a.guest-action-delete:active,
+  .table td.actions a.guest-action-delete:focus,
+  .table td.actions a.guest-action-delete.is-clicked {
+    border-width: 2px;
+    outline: 2px solid rgb(220 53 69 / 20%);
+    outline-offset: 1px;
+    background-color: #fff0f1;
+  }
+
+  .table td.actions a.guest-action-qr:active,
+  .table td.actions a.guest-action-qr:focus,
+  .table td.actions a.guest-action-qr.is-clicked {
+    border-width: 2px;
+    outline: 2px solid rgb(13 110 253 / 20%);
+    outline-offset: 1px;
+    background-color: #eff6ff;
+  }
+
   .guest-action-label {
     display: inline;
   }
