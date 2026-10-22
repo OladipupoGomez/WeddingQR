@@ -32,12 +32,23 @@ if (!DEMO_MODE && !supabase_is_configured()) {
   $message_type = 'info';
 }
 
+if (isset($_SESSION['login_flash']) && is_array($_SESSION['login_flash'])) {
+  $message = (string) ($_SESSION['login_flash']['message'] ?? '');
+  $message_type = (string) ($_SESSION['login_flash']['type'] ?? 'danger');
+  unset($_SESSION['login_flash']);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (DEMO_MODE || supabase_is_configured())) {
   $email = strtolower(trim($_POST['email'] ?? ''));
   $password = $_POST['password'] ?? '';
 
   if (!csrf_token_is_valid($_POST['csrf_token'] ?? null)) {
-    $message = 'Your session expired. Refresh the page and try again.';
+    $_SESSION['login_flash'] = [
+      'message' => 'Your session expired. Refresh the page and try again.',
+      'type' => 'danger',
+    ];
+    header('Location: /login.php' . ($return_to !== '' ? '?return_to=%2Fadmin' : ''), true, 303);
+    exit;
   } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $message = 'Enter a valid email address.';
   } elseif ($is_registering) {

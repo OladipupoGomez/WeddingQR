@@ -1,12 +1,33 @@
 <a href="?" class="btn btn-outline-primary mb-3 small">Back to home</a>
 <h1 class="mb-2">Guest check-in</h1>
 <p class="text-muted mb-3">Scan a guest’s QR code, review their details, then confirm check-in.</p>
-<div id="reader"></div>
-<div class="scanner-status" role="status" aria-live="polite">
-  <span id="scanner-spinner" class="bi-arrow-repeat scanner-spinner" aria-hidden="true"></span>
-  <span id="scanner-loading">Starting rear camera… Allow camera access when prompted.</span>
-  <button id="scanner-retry" type="button" class="btn btn-outline-primary btn-sm ms-2" hidden>Try camera again</button>
+<section id="scanner-method-choice" class="scanner-method-choice" aria-label="Choose how to scan a guest QR code">
+  <p class="text-muted mb-3">Choose how you want to scan the guest’s QR code.</p>
+  <div class="scanner-method-options">
+    <button id="choose-camera" type="button" class="btn btn-primary">
+      <span class="bi-camera me-1" aria-hidden="true"></span>Use camera
+    </button>
+    <button id="choose-upload" type="button" class="btn btn-outline-primary">
+      <span class="bi-upload me-1" aria-hidden="true"></span>Upload QR image
+    </button>
+  </div>
+</section>
+<div id="scanner-camera-panel" class="scanner-camera-panel" hidden>
+  <div id="reader"></div>
+  <div class="scanner-status" role="status" aria-live="polite">
+    <span id="scanner-spinner" class="bi-arrow-repeat scanner-spinner" aria-hidden="true"></span>
+    <span id="scanner-loading">Preparing rear camera…</span>
+    <button id="scanner-retry" type="button" class="btn btn-outline-primary btn-sm ms-2" hidden>Try camera again</button>
+  </div>
 </div>
+<div id="scanner-upload-panel" class="scanner-upload" hidden>
+  <label class="btn btn-outline-primary" for="qr-image-upload">
+    <span class="bi-upload me-1" aria-hidden="true"></span>Choose QR image
+  </label>
+  <input id="qr-image-upload" type="file" accept="image/*" class="visually-hidden">
+  <div id="qr-upload-status" class="small text-muted mt-2" role="status" aria-live="polite"></div>
+</div>
+<div id="file-reader" hidden></div>
 <div id="scan-result" class="scan-result alert d-none mt-3" role="status" aria-live="polite"></div>
 <input type="hidden" id="scanner-csrf" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
 
@@ -15,11 +36,22 @@
     const loading = document.getElementById('scanner-loading');
     const spinner = document.getElementById('scanner-spinner');
     const retryButton = document.getElementById('scanner-retry');
+    const methodChoice = document.getElementById('scanner-method-choice');
+    const cameraPanel = document.getElementById('scanner-camera-panel');
+    const uploadPanel = document.getElementById('scanner-upload-panel');
+    const chooseCameraButton = document.getElementById('choose-camera');
+    const chooseUploadButton = document.getElementById('choose-upload');
+    const fileInput = document.getElementById('qr-image-upload');
+    const fileStatus = document.getElementById('qr-upload-status');
     const resultBox = document.getElementById('scan-result');
     const csrfToken = document.getElementById('scanner-csrf').value;
     let scanner;
+    let imageScanner;
     let processing = false;
     let starting = false;
+    let scannerLibraryReady = false;
+    let cameraChosen = false;
+    let scanMode = '';
     let previousCode = '';
     let previousCodeAt = 0;
 
@@ -55,6 +87,11 @@
     function addScanNextButton() {
       addActionButton('Scan next guest', 'btn-outline-secondary', () => {
         resultBox.className = 'scan-result alert d-none mt-3';
+        if (scanMode === 'upload') {
+          fileStatus.textContent = '';
+          fileInput.click();
+          return;
+        }
         try {
           scanner.resume();
         } catch (error) {
@@ -109,13 +146,19 @@
       }
     }
 
-    async function onScanSuccess(decodedText) {
+    async function handleScannedCode(decodedText, cameraAlreadyPaused = false, allowRecentDuplicate = false) {
       const now = Date.now();
-      if (processing || (decodedText === previousCode && now - previousCodeAt < 3000)) return;
+      if (processing || (!allowRecentDuplicate && decodedText === previousCode && now - previousCodeAt < 3000)) return;
       processing = true;
       previousCode = decodedText;
       previousCodeAt = now;
-      scanner.pause(false);
+      if (!cameraAlreadyPaused && scanner) {
+        try {
+          scanner.pause(false);
+        } catch (error) {
+          // The camera may still be starting or may not be available.
+        }
+      }
       showResult('info', 'Looking up guest…');
 
       try {
@@ -155,6 +198,58 @@
       }
     }
 
+    function onCameraScanSuccess(decodedText) {
+      handleScannedCode(decodedText);
+    }
+
+    async function scanUploadedImage() {
+      const image = fileInput.files && fileInput.files[0];
+      if (!image) return;
+      fileInput.value = '';
+
+      if (!image.type.startsWith('image/')) {
+        fileStatus.textContent = 'Choose an image file.';
+        return;
+      }
+      if (image.size > 15 * 1024 * 1024) {
+        fileStatus.textContent = 'Choose an image smaller than 15 MB.';
+        return;
+      }
+      if (processing) return;
+
+      let cameraPaused = false;
+      if (scanner && !starting) {
+        try {
+          scanner.pause(false);
+          cameraPaused = true;
+        } catch (error) {
+          // Camera may not have started; image scanning can still proceed.
+        }
+      }
+
+      fileStatus.textContent = 'Reading QR image…';
+      try {
+        if (!imageScanner) {
+          imageScanner = new Html5Qrcode('file-reader', {
+            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
+          }, false);
+        }
+        const decodedText = await imageScanner.scanFile(image, false);
+        fileStatus.textContent = '';
+        await handleScannedCode(decodedText, cameraPaused, true);
+      } catch (error) {
+        fileStatus.textContent = 'No QR code found in that image. Try a clearer image.';
+        if (cameraPaused) {
+          try {
+            scanner.resume();
+          } catch (resumeError) {
+            loading.textContent = 'Scanner paused. Tap “Try camera again” to continue.';
+            retryButton.hidden = false;
+          }
+        }
+      }
+    }
+
     async function startScanner() {
       if (starting) return;
       if (!window.Html5Qrcode) {
@@ -184,7 +279,7 @@
               return { width: size, height: size };
             }
           },
-          onScanSuccess,
+          onCameraScanSuccess,
           () => {}
         );
         spinner.hidden = true;
@@ -199,10 +294,30 @@
     }
 
     retryButton.addEventListener('click', startScanner);
-    window.startGuestScanner = startScanner;
+    fileInput.addEventListener('change', scanUploadedImage);
+    chooseCameraButton.addEventListener('click', () => {
+      scanMode = 'camera';
+      cameraChosen = true;
+      methodChoice.hidden = true;
+      cameraPanel.hidden = false;
+      if (scannerLibraryReady) startScanner();
+      else loading.textContent = 'Loading camera scanner…';
+    });
+    chooseUploadButton.addEventListener('click', () => {
+      scanMode = 'upload';
+      methodChoice.hidden = true;
+      uploadPanel.hidden = false;
+      fileInput.click();
+    });
+    window.startGuestScanner = () => {
+      scannerLibraryReady = true;
+      if (cameraChosen) startScanner();
+    };
     window.scannerLibraryFailed = () => {
-      spinner.hidden = true;
-      loading.textContent = 'The scanner could not load. Reload the page and try again.';
+      if (cameraChosen) {
+        spinner.hidden = true;
+        loading.textContent = 'The camera scanner could not load. Reload the page and try again.';
+      }
     };
 
   })();

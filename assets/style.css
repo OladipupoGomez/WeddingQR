@@ -359,11 +359,34 @@ form label {
   margin: auto;
 }
 
+.scanner-method-choice,
+.scanner-camera-panel,
+.scanner-upload {
+  max-width: 600px;
+  margin: 1.25rem auto;
+  text-align: center;
+}
+
+.scanner-method-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .75rem;
+}
+
+.scanner-method-options .btn {
+  min-width: 10rem;
+}
+
 .scanner-status {
   max-width: 600px;
   min-height: 2.5rem;
   margin: .75rem auto;
   text-align: center;
+}
+
+.scanner-upload {
+  margin: 1.25rem auto;
 }
 
 .scanner-spinner {
