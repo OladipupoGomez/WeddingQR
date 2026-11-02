@@ -76,19 +76,19 @@ require_once __DIR__ . '/bootstrap.php';
       </div>
       <div class="gallery-grid">
         <figure class="gallery-photo">
-          <img src="/assets/wedding-image-1.jpg" alt="Ade and Ola together in traditional attire" loading="lazy" decoding="async">
+          <img src="/assets/wedding-image-1.webp" alt="Ade and Ola together in traditional attire" width="1600" height="2400" loading="lazy" decoding="async">
         </figure>
         <figure class="gallery-photo">
-          <img src="/assets/wedding-image-2.jpg" alt="Ade and Ola sharing a close moment" loading="lazy" decoding="async">
+          <img src="/assets/wedding-image-2.webp" alt="Ade and Ola sharing a close moment" width="1600" height="2000" loading="lazy" decoding="async">
         </figure>
         <figure class="gallery-photo">
-          <img src="/assets/wedding-image-3.jpg" alt="Ade and Ola in their wedding attire" loading="lazy" decoding="async">
+          <img src="/assets/wedding-image-3.webp" alt="Ade and Ola in their wedding attire" width="1600" height="2000" loading="lazy" decoding="async">
         </figure>
         <figure class="gallery-photo">
-          <img src="/assets/wedding-image-5.jpg" alt="Ade and Ola in their wedding attire" loading="lazy" decoding="async">
+          <img src="/assets/wedding-image-5.webp" alt="Ade and Ola in their wedding attire" width="1600" height="2000" loading="lazy" decoding="async">
         </figure>
         <figure class="gallery-photo">
-          <img src="/assets/wedding-image-6.jpg" alt="Ade and Ola sharing a quiet moment in wedding attire" loading="lazy" decoding="async">
+          <img src="/assets/wedding-image-6.webp" alt="Ade and Ola sharing a quiet moment in wedding attire" width="1600" height="2000" loading="lazy" decoding="async">
         </figure>
       </div>
     </section>
