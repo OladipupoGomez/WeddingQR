@@ -7,8 +7,8 @@ require_once __DIR__ . '/bootstrap.php';
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#28332b">
-  <meta name="description" content="Join ADE &amp; OLA for the wedding of the century. Please RSVP for the celebration.">
-  <title>ADE &amp; OLA | The Wedding of the Century</title>
+  <meta name="description" content="Join ADE &amp; OLA for a celebration of love. Please RSVP for the celebration.">
+  <title>ADE &amp; OLA | A Celebration of Love</title>
   <link rel="icon" type="image/png" href="/assets/adeola-favicon.png?v=3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,6 +23,7 @@ require_once __DIR__ . '/bootstrap.php';
     </button>
     <nav class="site-nav" id="site-nav" aria-label="Main navigation">
       <a href="#story">Our story</a>
+      <a href="#gallery">Our gallery</a>
       <a href="#details">Details</a>
       <a href="#schedule">Schedule</a>
       <a href="#registry">Registry</a>
@@ -32,11 +33,11 @@ require_once __DIR__ . '/bootstrap.php';
 
   <main>
     <section class="hero" id="top" aria-labelledby="hero-title">
-      <div class="hero-shade"></div>
+      <img class="hero-photo" src="/assets/wedding-image-4.jpg" alt="" fetchpriority="high">
       <div class="hero-content">
         <p class="eyebrow hero-eyebrow">A BEAUTIFUL BEGINNING</p>
         <h1 id="hero-title">ADE &amp; OLA</h1>
-        <p class="hero-script">The wedding of the century</p>
+        <p class="hero-script">A celebration of love</p>
         <p class="hero-note">A day for love, family, and the people who make life extraordinary.</p>
         <a class="button button-gold" href="/register">Kindly RSVP <span aria-hidden="true">↗</span></a>
         <div class="hero-countdown" role="timer" aria-label="Countdown to the wedding on November 14, 2026">
@@ -60,9 +61,36 @@ require_once __DIR__ . '/bootstrap.php';
         <p>We’re gathering our favourite people for a day filled with warmth, good company, and memories we’ll carry with us. It wouldn’t be the same without you.</p>
       </div>
       <figure class="story-photo">
-        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=75" alt="A couple celebrating together on their wedding day" loading="lazy" decoding="async">
+        <img src="/assets/wedding-image-5.jpg" alt="Ade and Ola together on their wedding day" loading="lazy" decoding="async">
         <figcaption>A day to remember</figcaption>
       </figure>
+    </section>
+
+    <section class="gallery section-light" id="gallery" aria-labelledby="gallery-title">
+      <div class="gallery-heading">
+        <div>
+          <p class="eyebrow">A FEW OF OUR FAVOURITE MOMENTS</p>
+          <h2 id="gallery-title">Our gallery</h2>
+        </div>
+        <p>Two hearts, one beautiful story.<br>Here’s a little glimpse of ours.</p>
+      </div>
+      <div class="gallery-grid">
+        <figure class="gallery-photo">
+          <img src="/assets/wedding-image-1.jpg" alt="Ade and Ola together in traditional attire" loading="lazy" decoding="async">
+        </figure>
+        <figure class="gallery-photo">
+          <img src="/assets/wedding-image-2.jpg" alt="Ade and Ola sharing a close moment" loading="lazy" decoding="async">
+        </figure>
+        <figure class="gallery-photo">
+          <img src="/assets/wedding-image-3.jpg" alt="Ade and Ola in their wedding attire" loading="lazy" decoding="async">
+        </figure>
+        <figure class="gallery-photo">
+          <img src="/assets/wedding-image-5.jpg" alt="Ade and Ola in their wedding attire" loading="lazy" decoding="async">
+        </figure>
+        <figure class="gallery-photo">
+          <img src="/assets/wedding-image-6.jpg" alt="Ade and Ola sharing a quiet moment in wedding attire" loading="lazy" decoding="async">
+        </figure>
+      </div>
     </section>
 
     <section class="details section-green" id="details">
@@ -91,7 +119,7 @@ require_once __DIR__ . '/bootstrap.php';
     </section>
 
     <section class="registry" id="registry">
-      <img class="registry-photo" src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1400&q=75" alt="" loading="lazy" decoding="async">
+      <img class="registry-photo" src="https://images.unsplash.com/photo-1738669469820-259d9c7189bb?auto=format&fit=crop&w=1800&h=1100&q=80" alt="" loading="lazy" decoding="async">
       <div class="registry-shade"></div>
       <div class="registry-copy">
         <p class="eyebrow">WITH LOVE AND GRATITUDE</p>

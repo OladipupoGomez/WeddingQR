@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <div class="rsvp-layout">
       <section class="rsvp-intro">
-        <p class="eyebrow">THE WEDDING OF THE CENTURY</p>
+        <p class="eyebrow">A CELEBRATION OF LOVE</p>
         <h1>Save your<br>place.</h1>
         <p class="rsvp-script">We look forward to celebrating with you</p>
         <p>Please reply for yourself. Your name, email address, and phone number must not already be registered.</p>

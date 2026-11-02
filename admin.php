@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_in_guest'])) {
         <a href="/admin" aria-label="Admin home">
           <img class="admin-logo me-0 me-md-1" src="/assets/adeola-2026-logo.png" alt="Ade and Ola wedding logo">
         </a>
-        <div class="tagline ms-0 ms-md-3 mt-0 mt-md-2">The wedding of the century.</div>
+        <div class="tagline ms-0 ms-md-3 mt-0 mt-md-2">A celebration of love.</div>
       </div>
       <a href="/?" class="me-3" aria-label="View wedding website" title="Wedding website"><span class="bi-house"></span></a>
       <a href="/admin?csv" class="me-3" aria-label="Guest data" title="Guest data"><span class="bi-database"></span></a>
