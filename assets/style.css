@@ -720,6 +720,21 @@ footer a:hover {
     font-weight: 600;
   }
 
+  .admin-guests-table tbody td.checkin-status {
+    grid-template-columns: max-content minmax(0, 1fr);
+    justify-content: start;
+    text-align: left;
+  }
+
+  .admin-guests-table tbody td.checkin-status > span,
+  .admin-guests-table tbody td.checkin-status > div {
+    justify-self: start;
+  }
+
+  .admin-guests-table tbody td.checkin-status > div {
+    grid-column: 2;
+  }
+
   .admin-guests-table tbody td.checkin .checkin-toggle-form,
   .admin-guests-table tbody td.checkin .checkin-toggle-form button {
     width: 100%;
@@ -738,5 +753,13 @@ footer a:hover {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
+    column-gap: .7rem;
+    row-gap: .5rem;
+  }
+
+  .admin-guests-table tbody td.actions a.guest-action {
+    min-height: 42px;
+    padding-right: .55rem;
+    padding-left: .55rem;
   }
 }
