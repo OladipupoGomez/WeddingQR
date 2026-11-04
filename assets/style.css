@@ -506,6 +506,12 @@ footer a:hover {
   width: 100%;
 }
 
+@media (min-width: 576px) {
+  .home-heading {
+    column-gap: 1rem;
+  }
+}
+
 .search input {
   width: 100%;
   min-width: 0;
@@ -730,11 +736,8 @@ footer a:hover {
 
   .admin-guests-table tbody td.checkin-status > span,
   .admin-guests-table tbody td.checkin-status > div {
-    justify-self: start;
-  }
-
-  .admin-guests-table tbody td.checkin-status > div {
     grid-column: 2;
+    justify-self: start;
   }
 
   .admin-guests-table tbody td.checkin .checkin-toggle-form,
