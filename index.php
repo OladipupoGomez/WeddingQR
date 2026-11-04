@@ -10,6 +10,7 @@ require_once __DIR__ . '/bootstrap.php';
   <meta name="description" content="Join ADE &amp; OLA for a celebration of love. Please RSVP for the celebration.">
   <title>ADE &amp; OLA | A Celebration of Love</title>
   <link rel="icon" type="image/png" href="/assets/adeola-favicon.png?v=3">
+  <link rel="preload" as="image" href="/assets/wedding-image-4.webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -33,7 +34,7 @@ require_once __DIR__ . '/bootstrap.php';
 
   <main>
     <section class="hero" id="top" aria-labelledby="hero-title">
-      <img class="hero-photo" src="/assets/wedding-image-4.jpg" alt="" fetchpriority="high">
+      <img class="hero-photo" src="/assets/wedding-image-4.webp" alt="" width="1600" height="2000" fetchpriority="high" decoding="async">
       <div class="hero-content">
         <p class="eyebrow hero-eyebrow">A BEAUTIFUL BEGINNING</p>
         <h1 id="hero-title">ADE &amp; OLA</h1>
@@ -61,7 +62,7 @@ require_once __DIR__ . '/bootstrap.php';
         <p>We’re gathering our favourite people for a day filled with warmth, good company, and memories we’ll carry with us. It wouldn’t be the same without you.</p>
       </div>
       <figure class="story-photo">
-        <img src="/assets/wedding-image-5.jpg" alt="Ade and Ola together on their wedding day" loading="lazy" decoding="async">
+        <img src="/assets/wedding-image-5.webp" alt="Ade and Ola together on their wedding day" loading="lazy" decoding="async">
         <figcaption>A day to remember</figcaption>
       </figure>
     </section>

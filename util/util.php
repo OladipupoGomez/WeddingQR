@@ -6,10 +6,11 @@ function get_account_labels()
 {
     return [
         'Groomsmen',
-        'VIP',
+        'Grooms friend',
         'ATB',
         'Providus',
         'Bridesmaid',
+        'Brides friend',
         'Grooms family',
         'Brides family',
     ];
@@ -570,7 +571,7 @@ function save_data_to_dir($dir, $records)
                 'name' => $record['name'] ?? '',
                 'email' => $record['email'] ?? '',
                 'phone' => $record['phone'] ?? '',
-                'label' => $record['label'] ?? 'VIP',
+                'label' => $record['label'] ?? 'Grooms friend',
                 'attending' => isset($record['attending']) ? (bool)$record['attending'] : true,
                 'invitation_sent' => !empty($record['invitation_sent'] ?? false),
                 'auth_user_id' => $record['auth_user_id'] ?? null,

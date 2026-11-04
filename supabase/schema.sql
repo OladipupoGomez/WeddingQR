@@ -4,7 +4,7 @@ create table {{SUPABASE_SCHEMA}}.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null unique,
   display_name text not null default '',
-  label text not null check (label in ('Groomsmen', 'VIP', 'ATB', 'Providus', 'Bridesmaid', 'Grooms family', 'Brides family')),
+  label text not null check (label in ('Groomsmen', 'Grooms friend', 'ATB', 'Providus', 'Bridesmaid', 'Brides friend', 'Grooms family', 'Brides family', 'VIP')),
   role text not null default 'user' check (role in ('user', 'admin')),
   created_at timestamptz not null default now()
 );
@@ -14,7 +14,7 @@ create table {{SUPABASE_SCHEMA}}.guests (
   name text not null,
   email text not null,
   phone text not null default '',
-  label text not null check (label in ('Groomsmen', 'VIP', 'ATB', 'Providus', 'Bridesmaid', 'Grooms family', 'Brides family')),
+  label text not null check (label in ('Groomsmen', 'Grooms friend', 'ATB', 'Providus', 'Bridesmaid', 'Brides friend', 'Grooms family', 'Brides family', 'VIP')),
   attending boolean not null default true,
   invitation_sent boolean not null default false,
   auth_user_id uuid references auth.users(id) on delete set null
@@ -52,9 +52,9 @@ begin
     new.email,
     coalesce(new.raw_user_meta_data ->> 'display_name', ''),
     case
-      when new.raw_user_meta_data ->> 'label' in ('Groomsmen', 'VIP', 'ATB', 'Providus', 'Bridesmaid', 'Grooms family', 'Brides family')
+      when new.raw_user_meta_data ->> 'label' in ('Groomsmen', 'Grooms friend', 'ATB', 'Providus', 'Bridesmaid', 'Brides friend', 'Grooms family', 'Brides family', 'VIP')
         then new.raw_user_meta_data ->> 'label'
-      else 'VIP'
+      else 'Grooms friend'
     end,
     case
       when new.raw_user_meta_data ->> 'account_type' = 'guest' then 'user'

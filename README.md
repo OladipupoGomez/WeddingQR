@@ -27,6 +27,8 @@ The public wedding site is at `/`; the password-free RSVP is at `/register`; adm
 
 With Supabase, run [`supabase/admin_creation_trigger.sql`](supabase/admin_creation_trigger.sql) once in the SQL Editor after replacing its schema placeholder as above. After that, Auth users created through **Authentication > Users** automatically get the `admin` role. Guest accounts invited by the app carry an `account_type = guest` marker and remain regular users. Turn off public email sign-ups in Supabase Auth settings so untrusted sign-ups cannot receive admin access. The standalone [`supabase/promote_admin.sql`](supabase/promote_admin.sql) remains available to manually promote an existing profile.
 
+For an existing project, run [`supabase/update_guest_categories.sql`](supabase/update_guest_categories.sql) once to allow the new friend categories. Existing VIP records remain valid in the database, but VIP is no longer offered in the app.
+
 Sign in at `/login.php` after promoting the user. The admin dashboard displays RSVPs. Admins can add guests; each guest must have an email and guest category, and receives a Supabase invitation email to set a password. The public RSVP does not create an account or ask for a password. In live mode, public RSVP confirmation emails include a guest QR code and Google Maps directions. Deleting an admin guest sends a polite uninvitation email before removing the record; if email delivery fails, removal is stopped so it can be retried. Labels categorize guests and do not grant permissions.
 
 ## Run Locally

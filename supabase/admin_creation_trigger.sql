@@ -17,9 +17,9 @@ begin
     new.email,
     coalesce(new.raw_user_meta_data ->> 'display_name', ''),
     case
-      when new.raw_user_meta_data ->> 'label' in ('Groomsmen', 'VIP', 'ATB', 'Providus', 'Bridesmaid', 'Grooms family', 'Brides family')
+      when new.raw_user_meta_data ->> 'label' in ('Groomsmen', 'Grooms friend', 'ATB', 'Providus', 'Bridesmaid', 'Brides friend', 'Grooms family', 'Brides family', 'VIP')
         then new.raw_user_meta_data ->> 'label'
-      else 'VIP'
+      else 'Grooms friend'
     end,
     case
       when new.raw_user_meta_data ->> 'account_type' = 'guest' then 'user'
