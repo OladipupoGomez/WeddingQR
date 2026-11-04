@@ -724,6 +724,8 @@ footer a:hover {
     grid-template-columns: max-content minmax(0, 1fr);
     justify-content: start;
     text-align: left;
+    padding-right: 0;
+    padding-left: 0;
   }
 
   .admin-guests-table tbody td.checkin-status > span,
@@ -751,15 +753,15 @@ footer a:hover {
 
   .admin-guests-table tbody td.actions .wrapper {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
-    column-gap: .7rem;
-    row-gap: .5rem;
+    gap: .55rem;
   }
 
   .admin-guests-table tbody td.actions a.guest-action {
-    min-height: 42px;
-    padding-right: .55rem;
-    padding-left: .55rem;
+    min-height: 44px;
+    padding: .55rem .7rem;
+    white-space: normal;
+    text-align: center;
   }
 }
