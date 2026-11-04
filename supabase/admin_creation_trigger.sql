@@ -17,7 +17,7 @@ begin
     new.email,
     coalesce(new.raw_user_meta_data ->> 'display_name', ''),
     case
-      when new.raw_user_meta_data ->> 'label' in ('Groomsmen', 'Grooms friend', 'ATB', 'Providus', 'Bridesmaid', 'Brides friend', 'Grooms family', 'Brides family', 'VIP')
+      when new.raw_user_meta_data ->> 'label' in ('Groomsmen', 'Grooms friend', 'ATB', 'Providus', 'Bridesmaid', 'Brides friend', 'Grooms family', 'Brides family')
         then new.raw_user_meta_data ->> 'label'
       else 'Grooms friend'
     end,
