@@ -162,7 +162,7 @@ if ($filter_category !== '') {
                 <input type="hidden" name="check_in_guest" value="1">
                 <input type="hidden" name="guest_id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
-                <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Check in <?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>">Check in</button>
+                <button type="submit" class="btn btn-sm btn-outline-primary" aria-label="Check in <?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>">Check in</button>
               </form>
             <?php else : ?>
               <a href="?checkin=<?= rawurlencode($id); ?>" class="small" title="Adjust checked-in guest count">Adjust</a>
