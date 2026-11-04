@@ -83,9 +83,6 @@ require_once __DIR__ . '/bootstrap.php';
           <img src="/assets/wedding-image-2.webp" alt="Ade and Ola sharing a close moment" width="1600" height="2000" loading="lazy" decoding="async">
         </figure>
         <figure class="gallery-photo">
-          <img src="/assets/wedding-image-3.webp" alt="Ade and Ola in their wedding attire" width="1600" height="2000" loading="lazy" decoding="async">
-        </figure>
-        <figure class="gallery-photo">
           <img src="/assets/wedding-image-5.webp" alt="Ade and Ola in their wedding attire" width="1600" height="2000" loading="lazy" decoding="async">
         </figure>
         <figure class="gallery-photo">
