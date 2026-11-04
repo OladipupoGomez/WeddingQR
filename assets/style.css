@@ -727,7 +727,6 @@ footer a:hover {
   }
 
   .admin-guests-table tbody td.checkin-status {
-    grid-template-columns: max-content minmax(0, 1fr);
     justify-content: start;
     text-align: left;
     padding-right: 0;
