@@ -114,7 +114,7 @@ if ($filter_category !== '') {
   </div>
   <div class="col-12 col-md-auto"><button class="btn btn-outline-primary" type="submit">Apply filters</button></div>
 </form>
-<div class="table-responsive">
+<div class="table-responsive admin-guests-responsive">
 <table class="table table-hover admin-guests-table">
 
   <thead>
@@ -152,11 +152,11 @@ if ($filter_category !== '') {
 
       ?>
         <tr>
-          <td class="name"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></td>
-          <td class="guest-category"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></td>
-          <td class="email"><?= htmlspecialchars($email ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
-          <td class="phone"><?= htmlspecialchars($phone ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
-          <td class="checkin">
+          <td class="name" data-label="Name"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="guest-category" data-label="Guest category"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="email" data-label="Email"><?= htmlspecialchars($email ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="phone" data-label="Phone"><?= htmlspecialchars($phone ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
+          <td class="checkin" data-label="Check-in">
             <?php if (!$checkin) : ?>
               <form method="post" action="/admin" class="checkin-toggle-form" data-confirm="Check in <?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>?">
                 <input type="hidden" name="check_in_guest" value="1">
@@ -169,7 +169,7 @@ if ($filter_category !== '') {
             <?php endif; ?>
           </td>
           <!-- <td class="group-size d-none d-sm-table-cell"><?= $group_size; ?></td> -->
-          <td class="checkin-status">
+          <td class="checkin-status" data-label="Status">
             <?php if ($checkin) : ?>
               <span class="bi-check-lg checkin-status-mark" role="img" aria-label="Checked in"></span>
             <?php else : ?>
@@ -196,7 +196,7 @@ if ($filter_category !== '') {
               </div>
             <?php endif; ?>
           </td>
-          <td class="actions">
+          <td class="actions" data-label="Actions">
             <div class="wrapper">
               <a href="?remove=<?= rawurlencode($id); ?>" class="guest-action guest-action-delete" title="Remove guest">
                 <span class="bi-trash3 guest-action-icon" aria-hidden="true"></span>

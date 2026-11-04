@@ -409,6 +409,22 @@ form label {
   margin-right: auto;
 }
 
+.scanner-toast {
+  position: fixed;
+  z-index: 1080;
+  top: max(1rem, env(safe-area-inset-top));
+  left: 50%;
+  width: min(600px, calc(100vw - 2rem));
+  margin: 0;
+  transform: translateX(-50%);
+  box-shadow: 0 .5rem 1.25rem rgb(0 0 0 / 22%);
+  text-align: left;
+}
+
+.scanner-toast[hidden] {
+  display: none;
+}
+
 #reader video {
   display: block;
   width: 100%;
@@ -650,5 +666,77 @@ footer a:hover {
 
   .table td.actions {
     width: 125px;
+  }
+
+  .admin-guests-responsive {
+    overflow: visible;
+  }
+
+  .admin-guests-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-guests-table thead {
+    display: none;
+  }
+
+  .admin-guests-table tbody,
+  .admin-guests-table tbody tr {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-guests-table tbody tr {
+    margin-bottom: .85rem;
+    padding: .2rem .85rem;
+    border: 1px solid #dee2e6;
+    border-radius: .65rem;
+    background: #fff;
+    box-shadow: 0 .15rem .45rem rgb(0 0 0 / 5%);
+  }
+
+  .admin-guests-table tbody td {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 38%) minmax(0, 1fr);
+    align-items: center;
+    gap: .5rem;
+    width: auto !important;
+    padding: .65rem 0;
+    border-bottom: 1px solid #edf0f2;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-guests-table tbody td::before {
+    content: attr(data-label);
+    color: #6c757d;
+    font-size: .78rem;
+    font-weight: 600;
+  }
+
+  .admin-guests-table tbody td.name {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .admin-guests-table tbody td.checkin .checkin-toggle-form,
+  .admin-guests-table tbody td.checkin .checkin-toggle-form button {
+    width: 100%;
+  }
+
+  .admin-guests-table tbody td.checkin .checkin-toggle-form button {
+    min-height: 44px;
+    font-size: .95rem;
+  }
+
+  .admin-guests-table tbody td.actions {
+    border-bottom: 0;
+  }
+
+  .admin-guests-table tbody td.actions .wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
   }
 }

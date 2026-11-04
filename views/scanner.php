@@ -31,6 +31,7 @@
 </div>
 <div id="file-reader" hidden></div>
 <div id="scan-result" class="scan-result alert d-none mt-3" role="status" aria-live="polite"></div>
+<div id="scanner-toast" class="scanner-toast alert alert-success" role="status" aria-live="assertive" hidden></div>
 <input type="hidden" id="scanner-csrf" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
 
 <script>
@@ -48,6 +49,7 @@
     const fileInput = document.getElementById('qr-image-upload');
     const fileStatus = document.getElementById('qr-upload-status');
     const resultBox = document.getElementById('scan-result');
+    const scanToast = document.getElementById('scanner-toast');
     const csrfToken = document.getElementById('scanner-csrf').value;
     let scanner;
     let imageScanner;
@@ -59,6 +61,17 @@
     let scanMode = '';
     let previousCode = '';
     let previousCodeAt = 0;
+
+    function showScanToast(type, message) {
+      scanToast.className = `scanner-toast alert alert-${type}`;
+      scanToast.textContent = message;
+      scanToast.hidden = false;
+    }
+
+    function hideScanToast() {
+      scanToast.hidden = true;
+      scanToast.textContent = '';
+    }
 
     function showResult(type, title, details = []) {
       resultBox.className = `scan-result alert alert-${type} mt-3`;
@@ -91,6 +104,7 @@
 
     function addScanNextButton() {
       addActionButton('Scan next guest', 'btn-outline-secondary', () => {
+        hideScanToast();
         resultBox.className = 'scan-result alert d-none mt-3';
         if (scanMode === 'upload') {
           fileStatus.textContent = '';
@@ -99,6 +113,7 @@
         }
         try {
           scanner.resume();
+          loading.textContent = 'Camera ready. Hold a guest QR code in the frame.';
         } catch (error) {
           loading.textContent = 'Scanner paused. Tap “Try camera again” to continue.';
           retryButton.hidden = false;
@@ -142,6 +157,7 @@
         const title = isDuplicate
           ? `${guest.name || 'Guest'} is already checked in.`
           : `${guest.name || 'Guest'} checked in.`;
+        showScanToast(isDuplicate ? 'warning' : 'success', title);
         showResult(isDuplicate ? 'warning' : 'success', title, guestDetails(guest));
         addScanNextButton();
       } catch (error) {
@@ -157,6 +173,7 @@
       processing = true;
       previousCode = decodedText;
       previousCodeAt = now;
+      hideScanToast();
       if (!cameraAlreadyPaused && scanner) {
         try {
           scanner.pause(false);
@@ -190,6 +207,14 @@
         const title = isDuplicate
           ? `${guest.name || 'Guest'} is already checked in.`
           : `Confirm check-in for ${guest.name || 'this guest'}?`;
+        showScanToast(isDuplicate ? 'warning' : 'info', isDuplicate
+          ? `${guest.name || 'Guest'} is already checked in.`
+          : `Guest found: ${guest.name || 'Guest'} — confirm check-in below.`);
+        if (scanMode === 'camera') {
+          loading.textContent = isDuplicate
+            ? 'Guest already checked in.'
+            : 'Guest found. Camera paused while you confirm check-in.';
+        }
         showResult(isDuplicate ? 'warning' : 'info', title, guestDetails(guest));
         if (!isDuplicate) {
           addActionButton('Confirm check-in', 'btn-primary', (event) => confirmCheckin(guest, event.currentTarget));
@@ -312,6 +337,7 @@
       cameraChosen = false;
       cameraStartId += 1;
       scanMode = '';
+      hideScanToast();
       retryButton.hidden = true;
       spinner.hidden = true;
       resultBox.className = 'scan-result alert d-none mt-3';
