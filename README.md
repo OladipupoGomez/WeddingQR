@@ -29,6 +29,8 @@ With Supabase, run [`supabase/admin_creation_trigger.sql`](supabase/admin_creati
 
 For an existing project, run [`supabase/update_guest_categories.sql`](supabase/update_guest_categories.sql) once to allow the new friend categories. Existing VIP records remain valid in the database, but VIP is no longer offered in the app.
 
+For an existing project, resolve any duplicate guest email addresses, then run [`supabase/prevent_duplicate_rsvps.sql`](supabase/prevent_duplicate_rsvps.sql) once after replacing its schema placeholder. This prevents concurrent RSVPs from creating duplicate rows with the same email address.
+
 Sign in at `/login.php` after promoting the user. The admin dashboard displays RSVPs. Admins can add guests; each guest must have an email and guest category, and receives a Supabase invitation email to set a password. The public RSVP does not create an account or ask for a password. In live mode, public RSVP confirmation emails include a guest QR code and Google Maps directions. Deleting an admin guest sends a polite uninvitation email before removing the record; if email delivery fails, removal is stopped so it can be retried. Labels categorize guests and do not grant permissions.
 
 ## Run Locally

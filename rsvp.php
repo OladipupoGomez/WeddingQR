@@ -57,7 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: /register?sent=1' . (($email_sent === false) ? '&email_error=1' : ''));
         exit;
       }
-      $message = 'We could not save your RSVP. Please try again later.';
+      $message = is_guest_email_unique_violation()
+        ? 'A guest with this email address has already RSVP’d. Please check your details or contact the wedding hosts.'
+        : 'We could not save your RSVP. Please try again.';
     }
   }
 }

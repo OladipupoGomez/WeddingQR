@@ -209,6 +209,12 @@ function supabase_last_error()
     return $GLOBALS['supabase_error'] ?? null;
 }
 
+function is_guest_email_unique_violation()
+{
+    $error = supabase_last_error();
+    return is_string($error) && strpos(strtolower($error), 'guests_email_normalized_unique') !== false;
+}
+
 function get_auth_profile($user_id)
 {
     $profiles = supabase_request('GET', '/rest/v1/profiles?id=eq.' . rawurlencode($user_id) . '&select=id,email,display_name,label,role,created_at');
