@@ -8,3 +8,7 @@ define('SUPABASE_SCHEMA', 'wedding_app'); // Use the same schema name in the Sup
 define('RSVP_EMAIL_FUNCTION_SECRET', 'GENERATE_A_LONG_RANDOM_SECRET');
 define('ADEOLA_APP_URL', 'http://localhost:port');
 define('ADEOLA_GIFT_REGISTRY_URL', 'https://giftdice.com/'); // Replace with your specific wishlist share link.
+define('ADEOLA_SHARED_PHOTOS_URL', ''); // Shared Google Drive folder link included in RSVP confirmation emails.
+define('ADEOLA_REGISTRY_BANK_NAME', '');
+define('ADEOLA_REGISTRY_ACCOUNT_NAME', '');
+define('ADEOLA_REGISTRY_ACCOUNT_NUMBER', '');

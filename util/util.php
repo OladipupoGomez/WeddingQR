@@ -343,6 +343,7 @@ function send_rsvp_confirmation($guest)
         'name' => $guest['name'],
         'attending' => (bool)$guest['attending'],
         'maps_url' => EVENT_MAPS_URL,
+        'photos_url' => SHARED_PHOTOS_URL,
         'qr_code_base64' => base64_encode($qr_png),
         'qr_code_filename' => 'adeola-guest-' . $guest['id'] . '.png',
     ], 'service', null, ['x-rsvp-secret' => RSVP_EMAIL_FUNCTION_SECRET]);

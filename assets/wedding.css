@@ -92,12 +92,27 @@ a { color: inherit; text-decoration: none; }
 .schedule-line article .eyebrow { margin-bottom: 10px; font-size: 8px; }
 .schedule-line h3 { margin: 0; font: 500 33px var(--serif); }
 .schedule-line article > p:last-child { margin: 9px 0 0; color: var(--muted); font-size: 16px; line-height: 1.45; }
-.registry { position: relative; display: grid; min-height: 440px; place-items: center; padding: 80px 8vw; color: white; text-align: center; background: #394037; }
+.registry { position: relative; display: grid; min-height: 440px; place-items: center; overflow: hidden; padding: 80px 8vw; color: white; text-align: center; background: var(--forest-deep); }
 .registry-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 55%; }
-.registry-shade { position: absolute; z-index: 0; inset: 0; background: rgb(26 36 29 / 69%); }
-.registry-copy { position: relative; z-index: 1; max-width: 570px; }
-.registry-copy > p:not(.eyebrow) { color: rgb(255 255 255 / 78%); }
-.registry-copy .button { margin-top: 30px; }
+.registry-shade { position: absolute; z-index: 0; inset: 0; background: rgb(26 36 29 / 72%); }
+.registry-copy { position: relative; z-index: 1; width: min(100%, 1160px); margin: 0 auto; }
+.registry-copy > p:not(.eyebrow) { width: 50%; max-width: 650px; margin: 24px auto 0; color: rgb(255 255 255 / 82%); font: italic 500 20px/1.7 var(--serif); }
+.registry-currency { display: inline-flex; align-items: center; gap: 9px; margin: 54px auto 0; padding: 14px 29px; border: 1px solid #eae6de; border-radius: 999px; color: #fff; background: #9caf88; font-size: 14px; font-weight: 700; letter-spacing: .09em; }
+.registry-transfer { position: relative; width: min(100%, 470px); margin: 44px auto 0; padding: 28px 30px; overflow: hidden; border: 1px solid #ede9e1; border-radius: 20px; color: var(--ink); background: #f8f6f1; text-align: left; }
+.registry-transfer::before { position: absolute; inset: 0 0 auto; height: 5px; background: linear-gradient(to right, #9caf88, #c9a227); content: ''; }
+.registry-transfer-bank { display: flex; align-items: center; gap: 10px; margin: 0 0 24px; color: #3a3530; font: 500 25px/1.2 var(--serif); }
+.registry-transfer-bank span { font: 22px/1 var(--sans); }
+.registry-transfer-rows { display: flex; flex-direction: column; gap: 15px; }
+.registry-transfer-row { display: flex; align-items: center; gap: 12px; }
+.registry-transfer-label { flex: 0 0 120px; color: #c39a16; font-size: 9px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+.registry-transfer-value { flex: 1; color: #3a3530; font: 500 17px/1.3 var(--serif); text-align: right; overflow-wrap: anywhere; }
+.registry-transfer-divider { height: 1px; background: #e8e2d8; }
+.registry-transfer-copy { flex: none; padding: 6px 10px; border: 1px solid #e9e4da; border-radius: 8px; color: #6b5e52; background: transparent; font: 700 9px/1.2 var(--sans); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.registry-transfer-copy:hover { border-color: #c9a227; color: var(--forest); }
+.registry-gift-link { margin-top: 68px; }
+.registry-gift-link p { margin: 0 0 22px; color: var(--gold); font: italic 500 22px/1.3 var(--serif); }
+.registry-gift-link .button { min-width: min(420px, 100%); min-height: 72px; margin: 0; border-radius: 999px; color: white; background: #c9a227; box-shadow: 0 12px 28px rgb(201 162 39 / 24%); font-size: 13px; letter-spacing: .17em; }
+.registry-gift-link .button:hover { color: var(--ink); border-color: #c9a227; background: transparent; }
 .gift-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 34px 0 0; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / 35%); text-align: left; }
 .gift-details div { min-width: 0; }
 .gift-details dt { margin-bottom: 7px; color: var(--gold); font-size: 9px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
@@ -175,6 +190,14 @@ a { color: inherit; text-decoration: none; }
   .schedule-dot { top: 0; left: 7px; }
   .schedule-line article > p:last-child { font-size: 15px; }
   .registry { min-height: 390px; padding: 62px 26px; }
+  .registry-copy > p:not(.eyebrow) { width: 100%; font-size: 18px; }
+  .registry-currency { margin-top: 38px; }
+  .registry-transfer { margin-top: 30px; padding: 32px 24px; }
+  .registry-transfer-bank { margin-bottom: 24px; font-size: 27px; }
+  .registry-transfer-label { flex-basis: 115px; font-size: 8px; }
+  .registry-transfer-value { font-size: 19px; }
+  .registry-gift-link { margin-top: 48px; }
+  .registry-gift-link .button { min-height: 62px; font-size: 11px; }
   .gift-details { grid-template-columns: 1fr; gap: 17px; margin-top: 25px; }
   .gift-details dd { font-size: 18px; }
   .rsvp-band { padding: 77px 20px 83px; }
@@ -188,6 +211,17 @@ a { color: inherit; text-decoration: none; }
   .rsvp-intro .rsvp-script { margin: 12px 0 10px; font-size: 26px; }
   .rsvp-intro > p:last-child { margin: 0; }
   .rsvp-form-wrap { padding: 26px 20px; }
+}
+
+@media (max-width: 430px) {
+  .registry { padding-right: 17px; padding-left: 17px; }
+  .registry-transfer { padding: 26px 17px; }
+  .registry-transfer-bank { gap: 10px; font-size: 24px; }
+  .registry-transfer-row { gap: 8px; }
+  .registry-transfer-label { flex-basis: 96px; font-size: 7px; letter-spacing: .09em; }
+  .registry-transfer-value { font-size: 17px; }
+  .registry-transfer-copy { padding: 7px 8px; font-size: 8px; }
+  .registry-gift-link .button { width: 100%; min-width: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

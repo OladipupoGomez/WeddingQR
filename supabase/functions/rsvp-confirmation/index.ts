@@ -19,6 +19,7 @@ Deno.serve(async (request) => {
     name?: string;
     attending?: boolean;
     maps_url?: string;
+    photos_url?: string;
     qr_code_base64?: string;
     qr_code_filename?: string;
   };
@@ -44,6 +45,16 @@ Deno.serve(async (request) => {
     if (!payload.maps_url.startsWith("https://www.google.com/maps/dir/?api=1&destination=")) {
       return Response.json({ error: "Invalid Google Maps directions link." }, { status: 400 });
     }
+    if (payload.photos_url) {
+      try {
+        const photosUrl = new URL(payload.photos_url);
+        if (photosUrl.protocol !== "https:" || photosUrl.hostname !== "drive.google.com") {
+          return Response.json({ error: "Invalid Google Drive photos link." }, { status: 400 });
+        }
+      } catch {
+        return Response.json({ error: "Invalid Google Drive photos link." }, { status: 400 });
+      }
+    }
     if (payload.qr_code_base64.length > 1000000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(payload.qr_code_base64)) {
       return Response.json({ error: "Invalid QR code attachment." }, { status: 400 });
     }
@@ -67,12 +78,21 @@ Deno.serve(async (request) => {
   const subject = isUninvitation
     ? "An update about your ADE & OLA wedding invitation"
     : "Adeola wedding RSVP confirmation";
+  const photosText = payload.photos_url ? `
+
+Let’s keep the memories alive! ❤️
+We’d love to see our special day through your eyes. Please use the link below to upload and share your photos and videos from the celebration. You can also browse and enjoy memories shared by other guests.
+${payload.photos_url}
+Thank you for being part of our story!` : "";
+  const photosHtml = payload.photos_url
+    ? `<p><strong>Let’s keep the memories alive! ❤️</strong></p><p>We’d love to see our special day through your eyes. Please use the link below to upload and share your photos and videos from the celebration. You can also browse and enjoy memories shared by other guests.</p><p><a href="${escapeHtml(payload.photos_url)}">Open our shared photo folder</a></p><p>Thank you for being part of our story!</p>`
+    : "";
   const text = isUninvitation
     ? `Dear ${payload.name},\n\n${response}\n\nWith sincere apologies,\nADE & OLA`
-    : `Dear ${payload.name},\n\n${response}\nYour personal check-in QR code is attached to this email.\n\nVenue: Zion Hall and Events, Ire-Akari, Isolo, Lagos State\nDirections: ${payload.maps_url}\n\nWith love,\nADE & OLA`;
+    : `Dear ${payload.name},\n\n${response}\nYour personal check-in QR code is attached to this email.\n\nVenue: Zion Hall and Events, Ire-Akari, Isolo, Lagos State\nDirections: ${payload.maps_url}${photosText}\n\nWith love,\nADE & OLA`;
   const html = isUninvitation
     ? `<p>Dear ${name},</p><p>${escapeHtml(response)}</p><p>With sincere apologies,<br>ADE &amp; OLA</p>`
-    : `<p>Dear ${name},</p><p>${escapeHtml(response)}</p><p>Your personal check-in QR code is attached to this email.</p><p><a href="${escapeHtml(payload.maps_url!)}">Get directions to Zion Hall and Events in Google Maps</a></p><p>With love,<br>ADE &amp; OLA</p>`;
+    : `<p>Dear ${name},</p><p>${escapeHtml(response)}</p><p>Your personal check-in QR code is attached to this email.</p><p><a href="${escapeHtml(payload.maps_url!)}">Get directions to Zion Hall and Events in Google Maps</a></p>${photosHtml}<p>With love,<br>ADE &amp; OLA</p>`;
 
   const emailResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",

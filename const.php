@@ -25,6 +25,10 @@ if (!defined('SUPABASE_SCHEMA')) {
 }
 if (!defined('ADEOLA_APP_URL')) define('ADEOLA_APP_URL', app_env('ADEOLA_APP_URL', 'http://localhost:8001'));
 if (!defined('ADEOLA_GIFT_REGISTRY_URL')) define('ADEOLA_GIFT_REGISTRY_URL', app_env('ADEOLA_GIFT_REGISTRY_URL', 'https://giftdice.com/'));
+if (!defined('ADEOLA_SHARED_PHOTOS_URL')) define('ADEOLA_SHARED_PHOTOS_URL', app_env('ADEOLA_SHARED_PHOTOS_URL'));
+if (!defined('ADEOLA_REGISTRY_BANK_NAME')) define('ADEOLA_REGISTRY_BANK_NAME', app_env('ADEOLA_REGISTRY_BANK_NAME'));
+if (!defined('ADEOLA_REGISTRY_ACCOUNT_NAME')) define('ADEOLA_REGISTRY_ACCOUNT_NAME', app_env('ADEOLA_REGISTRY_ACCOUNT_NAME'));
+if (!defined('ADEOLA_REGISTRY_ACCOUNT_NUMBER')) define('ADEOLA_REGISTRY_ACCOUNT_NUMBER', app_env('ADEOLA_REGISTRY_ACCOUNT_NUMBER'));
 
 if (!defined('ADEOLA_DEMO_MODE') && app_env('ADEOLA_DEMO_MODE') !== '') {
 	define('ADEOLA_DEMO_MODE', filter_var(app_env('ADEOLA_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN));
@@ -39,4 +43,8 @@ define('DEMO_MODE', defined('ADEOLA_DEMO_MODE')
 	: !(SUPABASE_URL !== '' && SUPABASE_ANON_KEY !== '' && SUPABASE_SERVICE_ROLE_KEY !== ''));
 define('APP_URL', rtrim(ADEOLA_APP_URL, '/'));
 define('GIFT_REGISTRY_URL', defined('ADEOLA_GIFT_REGISTRY_URL') ? ADEOLA_GIFT_REGISTRY_URL : 'https://giftdice.com/');
+define('SHARED_PHOTOS_URL', ADEOLA_SHARED_PHOTOS_URL);
+define('REGISTRY_BANK_NAME', app_env('ADEOLA_REGISTRY_BANK_NAME', ADEOLA_REGISTRY_BANK_NAME !== '' ? ADEOLA_REGISTRY_BANK_NAME : 'Test Bank'));
+define('REGISTRY_ACCOUNT_NAME', app_env('ADEOLA_REGISTRY_ACCOUNT_NAME', ADEOLA_REGISTRY_ACCOUNT_NAME !== '' ? ADEOLA_REGISTRY_ACCOUNT_NAME : 'Ade & Ola (Test)'));
+define('REGISTRY_ACCOUNT_NUMBER', app_env('ADEOLA_REGISTRY_ACCOUNT_NUMBER', ADEOLA_REGISTRY_ACCOUNT_NUMBER !== '' ? ADEOLA_REGISTRY_ACCOUNT_NUMBER : '0000000000'));
 define('EVENT_MAPS_URL', 'https://www.google.com/maps/dir/?api=1&destination=' . rawurlencode('Zion Hall and Events, Ire-Akari, Isolo, Lagos State'));
