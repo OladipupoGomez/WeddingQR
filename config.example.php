@@ -9,7 +9,7 @@ define('RSVP_EMAIL_FUNCTION_SECRET', 'GENERATE_A_LONG_RANDOM_SECRET');
 define('ADEOLA_APP_URL', 'http://localhost:port');
 define('ADEOLA_GIFT_REGISTRY_URL', 'https://giftdice.com/'); // Replace with your specific wishlist share link.
 define('ADEOLA_PHOTO_UPLOAD_URL', ''); // Google Form link for guest photo uploads.
-define('ADEOLA_PHOTO_VIEW_URL', ''); // Shared Google Drive link for viewing guest photos.
+define('ADEOLA_PHOTO_VIEW_URL', 'https://drive.google.com/drive/folders/TEST_PHOTO_FOLDER_ID'); // Test placeholder; replace with your shared folder link. ADEOLA_PHOTO_VIEW_URL in Vercel overrides this value.
 define('ADEOLA_REGISTRY_BANK_NAME', '');
 define('ADEOLA_REGISTRY_ACCOUNT_NAME', '');
 define('ADEOLA_REGISTRY_ACCOUNT_NUMBER', '');
