@@ -7,7 +7,7 @@ function get_account_labels()
     return [
         'Groomsmen',
         'Grooms friend',
-        'ATB',
+        'ATB/MIVA',
         'Providus',
         'Bridesmaid',
         'Brides friend',
