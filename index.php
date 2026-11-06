@@ -123,7 +123,7 @@ require_once __DIR__ . '/bootstrap.php';
         <p class="eyebrow">WITH LOVE AND GRATITUDE</p>
         <h2>Send a gift</h2>
         <p>Your presence is the greatest gift of all. If you’d also like to bless us with a monetary gift, our account details are below.</p>
-        <div class="registry-currency" aria-label="Currency">🇳🇬 <span>Naira</span></div>
+        <div class="registry-currency" aria-label="Nigerian naira"><span class="registry-currency-flag" aria-hidden="true">🇳🇬</span><span class="registry-currency-symbol" aria-hidden="true">&#8358;</span><span>Naira</span></div>
         <div class="registry-transfer" aria-label="Bank transfer details">
           <h3 class="registry-transfer-bank"><span aria-hidden="true">🏦</span><?= htmlspecialchars(REGISTRY_BANK_NAME, ENT_QUOTES, 'UTF-8'); ?></h3>
           <div class="registry-transfer-rows">
@@ -158,6 +158,9 @@ require_once __DIR__ . '/bootstrap.php';
     <span>ADE &amp; OLA@2026</span>
   </footer>
   <script>
+    const platform = navigator.userAgentData?.platform || navigator.platform || '';
+    if (/windows/i.test(platform)) document.documentElement.classList.add('windows-platform');
+
     const countdown = document.querySelector('.hero-countdown');
     const countdownTarget = new Date('2026-11-14T12:00:00+01:00').getTime();
     const countdownGrid = countdown.querySelector('.countdown-grid');

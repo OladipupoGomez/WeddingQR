@@ -98,6 +98,9 @@ a { color: inherit; text-decoration: none; }
 .registry-copy { position: relative; z-index: 1; width: min(100%, 1160px); margin: 0 auto; }
 .registry-copy > p:not(.eyebrow) { width: 50%; max-width: 650px; margin: 24px auto 0; color: rgb(255 255 255 / 82%); font: italic 500 20px/1.7 var(--serif); }
 .registry-currency { display: inline-flex; align-items: center; gap: 9px; margin: 54px auto 0; padding: 14px 29px; border: 1px solid #eae6de; border-radius: 999px; color: #fff; background: #9caf88; font-size: 14px; font-weight: 700; letter-spacing: .09em; }
+.registry-currency-symbol { display: none; font-family: Arial, "Segoe UI Symbol", sans-serif; font-size: 19px; line-height: 1; }
+.windows-platform .registry-currency-flag { display: none; }
+.windows-platform .registry-currency-symbol { display: inline; }
 .registry-transfer { position: relative; width: min(100%, 470px); margin: 44px auto 0; padding: 28px 30px; overflow: hidden; border: 1px solid #ede9e1; border-radius: 20px; color: var(--ink); background: #f8f6f1; text-align: left; }
 .registry-transfer::before { position: absolute; inset: 0 0 auto; height: 5px; background: linear-gradient(to right, #9caf88, #c9a227); content: ''; }
 .registry-transfer-bank { display: flex; align-items: center; gap: 10px; margin: 0 0 24px; color: #3a3530; font: 500 25px/1.2 var(--serif); }
