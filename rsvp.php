@@ -76,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/wedding.css">
+  <script src="/assets/rsvp.js" defer></script>
 </head>
 <body>
   <main class="rsvp-page">
@@ -124,6 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </select>
             </div>
             <button class="button button-dark rsvp-submit" type="submit">Send RSVP <span aria-hidden="true">↗</span></button>
+            <p class="rsvp-submit-status" role="status" aria-live="polite" hidden></p>
           </form>
         <?php endif; ?>
       </section>

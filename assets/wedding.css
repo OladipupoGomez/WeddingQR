@@ -150,6 +150,8 @@ a { color: inherit; text-decoration: none; }
 .rsvp-option input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
 .form-field input:disabled { color: #8b8b85; background: #efede7; }
 .rsvp-submit { width: 100%; min-height: 51px; margin-top: 3px; border: 0; cursor: pointer; }
+.rsvp-submit:disabled { cursor: wait; opacity: .75; }
+.rsvp-submit-status { margin: 0; color: var(--muted); font-size: 13px; text-align: center; }
 .rsvp-notice { margin-bottom: 22px; padding: 14px; color: var(--forest); background: #e9ede5; font-size: 12px; line-height: 1.65; }
 .rsvp-notice.error { color: #8a332a; background: #f5e8e5; }
 .honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
