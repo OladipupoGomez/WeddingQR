@@ -56,7 +56,8 @@ In the Vercel project settings, add these environment variables for Production a
 - `RSVP_EMAIL_FUNCTION_SECRET`
 - `ADEOLA_APP_URL` (the deployed site URL, such as `https://your-project.vercel.app`)
 - `ADEOLA_GIFT_REGISTRY_URL` (your GiftDice wishlist share link)
-- `ADEOLA_SHARED_PHOTOS_URL` (optional shared Google Drive folder link included in RSVP confirmation emails; set it to a link guests are allowed to open/upload to)
+- `ADEOLA_PHOTO_UPLOAD_URL` (Google Form link guests use to upload photos; Google requires uploaders to sign in)
+- `ADEOLA_PHOTO_VIEW_URL` (shared Google Drive link guests use to view photos)
 - `ADEOLA_REGISTRY_BANK_NAME`, `ADEOLA_REGISTRY_ACCOUNT_NAME`, and `ADEOLA_REGISTRY_ACCOUNT_NUMBER` (override the visible test values shown in the registry by default; set the real values before production)
 
 Import the GitHub repository in Vercel and deploy a Preview first. Add the deployed URL to Supabase Authentication's Site URL and Redirect URLs before using guest invitations. Keep the service-role key in Vercel's server-side environment settings only.

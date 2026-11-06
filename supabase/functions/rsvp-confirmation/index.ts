@@ -19,7 +19,8 @@ Deno.serve(async (request) => {
     name?: string;
     attending?: boolean;
     maps_url?: string;
-    photos_url?: string;
+    photos_upload_url?: string;
+    photos_view_url?: string;
     qr_code_base64?: string;
     qr_code_filename?: string;
   };
@@ -45,14 +46,24 @@ Deno.serve(async (request) => {
     if (!payload.maps_url.startsWith("https://www.google.com/maps/dir/?api=1&destination=")) {
       return Response.json({ error: "Invalid Google Maps directions link." }, { status: 400 });
     }
-    if (payload.photos_url) {
+    if (payload.photos_upload_url) {
       try {
-        const photosUrl = new URL(payload.photos_url);
-        if (photosUrl.protocol !== "https:" || photosUrl.hostname !== "drive.google.com") {
-          return Response.json({ error: "Invalid Google Drive photos link." }, { status: 400 });
+        const uploadUrl = new URL(payload.photos_upload_url);
+        if (uploadUrl.protocol !== "https:" || !["forms.gle", "docs.google.com"].includes(uploadUrl.hostname)) {
+          return Response.json({ error: "Invalid Google Form upload link." }, { status: 400 });
         }
       } catch {
-        return Response.json({ error: "Invalid Google Drive photos link." }, { status: 400 });
+        return Response.json({ error: "Invalid Google Form upload link." }, { status: 400 });
+      }
+    }
+    if (payload.photos_view_url) {
+      try {
+        const viewUrl = new URL(payload.photos_view_url);
+        if (viewUrl.protocol !== "https:" || viewUrl.hostname !== "drive.google.com") {
+          return Response.json({ error: "Invalid Google Drive viewing link." }, { status: 400 });
+        }
+      } catch {
+        return Response.json({ error: "Invalid Google Drive viewing link." }, { status: 400 });
       }
     }
     if (payload.qr_code_base64.length > 1000000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(payload.qr_code_base64)) {
@@ -78,14 +89,28 @@ Deno.serve(async (request) => {
   const subject = isUninvitation
     ? "An update about your ADE & OLA wedding invitation"
     : "Adeola wedding RSVP confirmation";
-  const photosText = payload.photos_url ? `
-
-Let’s keep the memories alive! ❤️
-We’d love to see our special day through your eyes. Please use the link below to upload and share your photos and videos from the celebration. You can also browse and enjoy memories shared by other guests.
-${payload.photos_url}
-Thank you for being part of our story!` : "";
-  const photosHtml = payload.photos_url
-    ? `<p><strong>Let’s keep the memories alive! ❤️</strong></p><p>We’d love to see our special day through your eyes. Please use the link below to upload and share your photos and videos from the celebration. You can also browse and enjoy memories shared by other guests.</p><p><a href="${escapeHtml(payload.photos_url)}">Open our shared photo folder</a></p><p>Thank you for being part of our story!</p>`
+  const hasPhotoLinks = Boolean(payload.photos_upload_url || payload.photos_view_url);
+  const photoTextSections = [
+    payload.photos_upload_url
+      ? `Share your photos: Upload your pictures and videos from the celebration here:\n${payload.photos_upload_url}`
+      : "",
+    payload.photos_view_url
+      ? `Browse the gallery: View photos/videos shared by the couple and other guests here:\n${payload.photos_view_url}`
+      : "",
+  ].filter(Boolean).join("\n\n");
+  const photosText = hasPhotoLinks
+    ? `\n\nLet’s keep the memories alive! ❤️\n${photoTextSections}\n\nThank you for being part of our story!`
+    : "";
+  const photoHtmlSections = [
+    payload.photos_upload_url
+      ? `<p><strong>Share your photos:</strong> Share the pictures/videos you took at the celebration.<br><a href="${escapeHtml(payload.photos_upload_url)}">Upload photos</a></p>`
+      : "",
+    payload.photos_view_url
+      ? `<p><strong>Browse the gallery:</strong> View photos/videos shared by the couple and other guests.<br><a href="${escapeHtml(payload.photos_view_url)}">View the photo gallery</a></p>`
+      : "",
+  ].join("");
+  const photosHtml = hasPhotoLinks
+    ? `<p><strong>Let’s keep the memories alive! ❤️</strong></p>${photoHtmlSections}<p>Thank you for being part of our story!</p>`
     : "";
   const text = isUninvitation
     ? `Dear ${payload.name},\n\n${response}\n\nWith sincere apologies,\nADE & OLA`
